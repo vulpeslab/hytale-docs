@@ -26,19 +26,19 @@ Hytale's content system allows you to:
 ## Architecture
 
 ```
-AssetRegistry (Global)
-├── AssetStore<K, T, M>[]     - Type-specific stores
-│   ├── AssetCodec            - Serialization
-│   ├── AssetMap              - Storage/lookup
-│   └── AssetPack[]           - Content packs
-└── TagSystem                  - Asset tagging
+AssetRegistry (com.hypixel.hytale.assetstore.AssetRegistry)
+├── AssetStore<K, T, M>[]     - Type-specific stores (K=key, T=asset, M=map)
+│   ├── AssetCodec<K, T>      - Serialization/deserialization
+│   ├── AssetMap<K, T>        - Storage and lookup
+│   └── AssetPack             - Content pack container
+└── TagPattern                 - Asset tag matching
 
-World Generation
+World Generation (com.hypixel.hytale.server.worldgen)
 ├── IWorldGen                  - Generator interface
 ├── ChunkGenerator             - Terrain generation
-├── Biome System               - Biome definitions
-├── Cave System                - Underground generation
-└── Prefab System              - Structure placement
+├── CavePopulator              - Underground cave generation
+├── CaveNodeType               - Cave configuration
+└── PrefabStore                - Structure placement
 ```
 
 ## Quick Example
@@ -46,15 +46,20 @@ World Generation
 ### Registering an Asset
 
 ```java
+// In your plugin's setup method, use the provided AssetRegistry
 @Override
-protected void setup() {
-    AssetRegistry.register(
+protected void setup(AssetRegistry registry) {
+    // For String-keyed assets (most common case)
+    registry.register(
         HytaleAssetStore.builder(MyAsset.class, new IndexedLookupTableAssetMap<>(MyAsset[]::new))
             .setPath("MyAssets")
-            .setCodec((AssetCodec) MyAsset.CODEC)
+            .setCodec(MyAsset.CODEC)
             .setKeyFunction(MyAsset::getId)
             .build()
     );
+
+    // For custom key types, use the 3-parameter builder
+    // HytaleAssetStore.builder(KeyClass.class, AssetClass.class, assetMap)
 }
 ```
 
@@ -64,8 +69,12 @@ protected void setup() {
 PrefabStore store = PrefabStore.get();
 BlockSelection prefab = store.getServerPrefab("structures/house.prefab.json");
 
-// Place at position
-prefab.place(world, new Vector3i(100, 64, 100));
+// Place at position - requires a CommandSender for feedback
+// place(CommandSender feedback, World world, Vector3i position, BlockMask mask)
+prefab.place(commandSender, world, new Vector3i(100, 64, 100), null);
+
+// Alternative: place without returning replaced blocks
+prefab.placeNoReturn(null, null, world, componentAccessor);
 ```
 
 ## Content Types

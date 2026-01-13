@@ -118,20 +118,43 @@ public class HytalePermissions {
     public static final String NAMESPACE = "hytale";
     public static final String COMMAND_BASE = "hytale.command";
 
-    // Editor permissions
+    // Asset editor permissions
     public static final String ASSET_EDITOR = "hytale.editor.asset";
+    public static final String ASSET_EDITOR_PACKS_CREATE = "hytale.editor.packs.create";
+    public static final String ASSET_EDITOR_PACKS_EDIT = "hytale.editor.packs.edit";
+    public static final String ASSET_EDITOR_PACKS_DELETE = "hytale.editor.packs.delete";
+
+    // Builder tools permissions
     public static final String BUILDER_TOOLS_EDITOR = "hytale.editor.builderTools";
+
+    // Brush permissions
     public static final String EDITOR_BRUSH_USE = "hytale.editor.brush.use";
     public static final String EDITOR_BRUSH_CONFIG = "hytale.editor.brush.config";
+
+    // Prefab permissions
     public static final String EDITOR_PREFAB_USE = "hytale.editor.prefab.use";
     public static final String EDITOR_PREFAB_MANAGE = "hytale.editor.prefab.manage";
+
+    // Selection permissions
     public static final String EDITOR_SELECTION_USE = "hytale.editor.selection.use";
+    public static final String EDITOR_SELECTION_CLIPBOARD = "hytale.editor.selection.clipboard";
+    public static final String EDITOR_SELECTION_MODIFY = "hytale.editor.selection.modify";
+
+    // History permission
+    public static final String EDITOR_HISTORY = "hytale.editor.history";
+
+    // Camera permission
     public static final String FLY_CAM = "hytale.camera.flycam";
 
     // Helper methods for command permissions
     @Nonnull
     public static String fromCommand(@Nonnull String name) {
         return "hytale.command." + name;
+    }
+
+    @Nonnull
+    public static String fromCommand(@Nonnull String name, @Nonnull String subCommand) {
+        return "hytale.command." + name + "." + subCommand;
     }
 }
 ```
@@ -153,10 +176,11 @@ public class HytalePermissions {
 
 ### Default Groups
 
-The system includes two built-in groups:
+The system includes two built-in groups defined in `HytalePermissionsProvider`:
 
 ```java
 public static final String DEFAULT_GROUP = "Default";
+public static final Set<String> DEFAULT_GROUP_LIST = Set.of("Default");
 public static final String OP_GROUP = "OP";
 
 // Default group permissions
@@ -167,19 +191,23 @@ public static final Map<String, Set<String>> DEFAULT_GROUPS = Map.ofEntries(
 ```
 
 - **OP**: Has the `*` wildcard, granting all permissions
-- **Default**: All players belong to this group by default (no special permissions)
+- **Default**: All players belong to this group by default (no special permissions). If a user has no explicit groups assigned, `getGroupsForUser()` returns `DEFAULT_GROUP_LIST`.
 
 ### Virtual Groups (GameMode-based)
 
-The system automatically assigns permissions based on game mode:
+The system automatically assigns virtual permissions based on game mode. Virtual groups are initialized during the `start()` phase of `PermissionsModule`:
 
 ```java
-// Creative mode automatically grants builder tools permission
+// In PermissionsModule.start()
+Map<String, Set<String>> virtualGroups = CommandManager.get().createVirtualPermissionGroups();
 virtualGroups.computeIfAbsent(
     GameMode.Creative.toString(),
     k -> new HashSet()
 ).add("hytale.editor.builderTools");
+this.setVirtualGroups(virtualGroups);
 ```
+
+Virtual groups are checked after user permissions and group permissions when evaluating `hasPermission()`.
 
 ## Using the PermissionsModule
 
@@ -272,7 +300,7 @@ protected void executeSync(@Nonnull CommandContext context) {
 
 ### PlayerPermissionChangeEvent
 
-Fired when a player's individual permissions change:
+Fired when a player's individual permissions change. The base class provides `getPlayerUuid()` and has several inner classes for specific events:
 
 ```java
 import com.hypixel.hytale.server.core.event.events.permissions.PlayerPermissionChangeEvent;
@@ -286,11 +314,21 @@ getEventRegistry().register(
         getLogger().info("Player " + playerUuid + " gained: " + added);
     }
 );
+
+// Listen for permissions removed
+getEventRegistry().register(
+    PlayerPermissionChangeEvent.PermissionsRemoved.class,
+    event -> {
+        UUID playerUuid = event.getPlayerUuid();
+        Set<String> removed = event.getRemovedPermissions();
+        getLogger().info("Player " + playerUuid + " lost: " + removed);
+    }
+);
 ```
 
 ### PlayerGroupEvent
 
-Fired when a player is added to or removed from a group:
+Fired when a player is added to or removed from a group. Extends `PlayerPermissionChangeEvent`:
 
 ```java
 import com.hypixel.hytale.server.core.event.events.permissions.PlayerGroupEvent;
@@ -301,6 +339,41 @@ getEventRegistry().register(
         UUID playerUuid = event.getPlayerUuid();
         String group = event.getGroupName();
         getLogger().info("Player " + playerUuid + " joined group: " + group);
+    }
+);
+
+getEventRegistry().register(
+    PlayerGroupEvent.Removed.class,
+    event -> {
+        UUID playerUuid = event.getPlayerUuid();
+        String group = event.getGroupName();
+        getLogger().info("Player " + playerUuid + " left group: " + group);
+    }
+);
+```
+
+### GroupPermissionChangeEvent
+
+Fired when a group's permissions are modified:
+
+```java
+import com.hypixel.hytale.server.core.event.events.permissions.GroupPermissionChangeEvent;
+
+getEventRegistry().register(
+    GroupPermissionChangeEvent.Added.class,
+    event -> {
+        String group = event.getGroupName();
+        Set<String> added = event.getAddedPermissions();
+        getLogger().info("Group " + group + " gained: " + added);
+    }
+);
+
+getEventRegistry().register(
+    GroupPermissionChangeEvent.Removed.class,
+    event -> {
+        String group = event.getGroupName();
+        Set<String> removed = event.getRemovedPermissions();
+        getLogger().info("Group " + group + " lost: " + removed);
     }
 );
 ```
@@ -331,23 +404,29 @@ Permissions are stored in `permissions.json` in the server directory:
 ### /op Commands
 
 ```
-/op add <player>     - Add player to OP group
-/op remove <player>  - Remove player from OP group
-/op self             - Toggle own OP status
+/op self             - Toggle own OP status (in singleplayer or with --allow-op flag)
+/op add <player>     - Add player to OP group (requires hytale.command.op.add)
+/op remove <player>  - Remove player from OP group (requires hytale.command.op.remove)
 ```
+
+Note: The `/op self` command has special restrictions:
+- In singleplayer, only the world owner can use it
+- In multiplayer, the server must be started with `--allow-op` flag
+- Does not work if custom permission providers are installed
 
 ### /perm Commands
 
 ```
-/perm user list <uuid>                    - List user permissions
-/perm user add <uuid> <permissions...>    - Add permissions to user
-/perm user remove <uuid> <permissions...> - Remove permissions from user
-/perm user group list <uuid>              - List user's groups
-/perm user group add <uuid> <group>       - Add user to group
-/perm user group remove <uuid> <group>    - Remove user from group
-/perm group list <group>                  - List group permissions
-/perm group add <group> <permissions...>  - Add permissions to group
+/perm group list <group>                    - List group permissions
+/perm group add <group> <permissions...>    - Add permissions to group
 /perm group remove <group> <permissions...> - Remove permissions from group
+/perm user list <uuid>                      - List user permissions
+/perm user add <uuid> <permissions...>      - Add permissions to user
+/perm user remove <uuid> <permissions...>   - Remove permissions from user
+/perm user group list <uuid>                - List user's groups
+/perm user group add <uuid> <group>         - Add user to group
+/perm user group remove <uuid> <group>      - Remove user from group
+/perm test <permission>                     - Test if you have a permission
 ```
 
 ## Best Practices

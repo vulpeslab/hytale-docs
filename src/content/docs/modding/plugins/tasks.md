@@ -11,16 +11,23 @@ The Hytale server provides several mechanisms for scheduling tasks, handling asy
 
 ```
 HytaleServer
-├── SCHEDULED_EXECUTOR      - Global ScheduledExecutorService for timed tasks
+├── SCHEDULED_EXECUTOR      - Global single-threaded ScheduledExecutorService for timed tasks
 └── EventBus                - Async event handling
 
-World (extends TickingThread, implements Executor)
-├── taskQueue               - Queue of Runnables executed on the world thread
+World (extends TickingThread, implements Executor, ExecutorMetricsRegistry.ExecutorMetric)
+├── taskQueue               - LinkedBlockingDeque<Runnable> executed on the world thread
+├── acceptingTasks          - AtomicBoolean controlling task acceptance
 ├── tick()                  - Called 30 times per second (configurable TPS)
 └── execute()               - Submit tasks to run on the world thread
 
+TickingThread
+├── TPS = 30                - Default ticks per second
+├── NANOS_IN_ONE_SECOND     - 1,000,000,000 nanoseconds
+├── NANOS_IN_ONE_MILLI      - 1,000,000 nanoseconds
+└── SLEEP_OFFSET            - 3,000,000 nanoseconds
+
 TaskRegistry (per-plugin)
-└── Tracks CompletableFuture and ScheduledFuture registrations
+└── Tracks CompletableFuture<Void> and ScheduledFuture<Void> registrations
 ```
 
 ## Task Registry
@@ -33,18 +40,19 @@ Each plugin has access to a `TaskRegistry` through `getTaskRegistry()`. This reg
 import com.hypixel.hytale.server.core.task.TaskRegistration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @Override
 protected void setup() {
-    // Register a CompletableFuture task
+    // Register a CompletableFuture<Void> task
     CompletableFuture<Void> asyncTask = CompletableFuture.runAsync(() -> {
         // Long-running operation
     });
     TaskRegistration registration = getTaskRegistry().registerTask(asyncTask);
 
-    // Register a ScheduledFuture task
+    // Register a ScheduledFuture<Void> task
     ScheduledFuture<Void> scheduledTask = HytaleServer.SCHEDULED_EXECUTOR.schedule(
-        () -> { /* task */ },
+        () -> { /* task */ return null; },
         5, TimeUnit.SECONDS
     );
     getTaskRegistry().registerTask(scheduledTask);
@@ -60,9 +68,16 @@ public class TaskRegistration extends Registration {
     private final Future<?> task;
 
     // Constructor automatically sets up cancellation on unregister
-    public TaskRegistration(Future<?> task) {
+    public TaskRegistration(@Nonnull Future<?> task) {
         super(() -> true, () -> task.cancel(false));
         this.task = task;
+    }
+
+    // Copy constructor with custom lifecycle callbacks
+    public TaskRegistration(@Nonnull TaskRegistration registration,
+                           BooleanSupplier isEnabled, Runnable unregister) {
+        super(isEnabled, unregister);
+        this.task = registration.task;
     }
 
     public Future<?> getTask() {
@@ -70,6 +85,8 @@ public class TaskRegistration extends Registration {
     }
 }
 ```
+
+Note: The `TaskRegistry.registerTask()` method accepts specifically `CompletableFuture<Void>` or `ScheduledFuture<Void>` - not generic Future types.
 
 When your plugin is disabled or the server shuts down, all registered tasks are automatically cancelled.
 
@@ -117,14 +134,15 @@ Each `World` instance runs on its own dedicated thread and implements `Executor`
 
 ```java
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.Universe;
 import java.util.concurrent.CompletableFuture;
 
-// Get a world reference
+// Get a world reference (returns null if world doesn't exist)
 World world = Universe.get().getWorld("myWorld");
 
 // Execute on the world thread
 world.execute(() -> {
-    // This runs on the world thread during the next tick
+    // This runs on the world thread via a LinkedBlockingDeque taskQueue
     // Safe to modify entities, blocks, etc.
 });
 
@@ -138,14 +156,20 @@ CompletableFuture.supplyAsync(() -> {
 }, world);
 ```
 
+:::note
+The `world.execute()` method will throw a `SkipSentryException` wrapping an `IllegalThreadStateException` if the world is no longer accepting tasks (e.g., during shutdown). Always check `world.isAlive()` before submitting tasks to a world that may be shutting down.
+:::
+
 ### Tick Rate and Timing
 
 Worlds tick at 30 TPS by default. You can adjust this or work with tick-based timing:
 
 ```java
 // Constants from TickingThread
+public static final int NANOS_IN_ONE_MILLI = 1000000;
+public static final int NANOS_IN_ONE_SECOND = 1000000000;
 public static final int TPS = 30;
-public static final int NANOS_IN_ONE_SECOND = 1_000_000_000;
+public static long SLEEP_OFFSET = 3000000L;
 
 // Get current tick rate
 int tps = world.getTps();
@@ -155,6 +179,9 @@ int nanosPerTick = world.getTickStepNanos(); // 33,333,333 ns at 30 TPS
 if (world.isInThread()) {
     // Safe to access world state directly
 }
+
+// Set a custom TPS (must be between 1 and 2048, called from world thread)
+world.setTps(60);
 ```
 
 ## CompletableFuture Patterns
@@ -166,15 +193,24 @@ The `CompletableFutureUtil` class provides helpful utilities:
 ```java
 import com.hypixel.hytale.common.util.CompletableFutureUtil;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
 
-// Check if a throwable represents cancellation
+// Check if a throwable represents cancellation (handles nested CompletionExceptions)
 if (CompletableFutureUtil.isCanceled(throwable)) {
-    // Handle cancellation gracefully
+    // Handle cancellation gracefully - checks for CancellationException
+    // and recursively unwraps CompletionException causes
     return;
 }
 
 // Create an already-cancelled future
 CompletableFuture<String> cancelled = CompletableFutureUtil.completionCanceled();
+
+// Catch and log unhandled exceptions (logs to severe and wraps in TailedRuntimeException)
+CompletableFuture<MyResult> safeFuture = CompletableFutureUtil._catch(myFuture);
+
+// Transfer completion state from one future to another
+CompletableFutureUtil.whenComplete(sourceFuture, targetFuture);
 ```
 
 ### Combining Futures
@@ -211,16 +247,25 @@ For commands that perform long-running operations, extend `AbstractAsyncCommand`
 ```java
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractAsyncCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.Message;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 
 public class MyAsyncCommand extends AbstractAsyncCommand {
 
     public MyAsyncCommand() {
+        // Available constructors:
+        // super(String name, String description)
+        // super(String name, String description, boolean requiresConfirmation)
+        // super(String description) - name derived from class name
         super("mycommand", "Performs an async operation");
     }
 
     @Override
-    protected CompletableFuture<Void> executeAsync(CommandContext context) {
+    @Nonnull
+    protected CompletableFuture<Void> executeAsync(@Nonnull CommandContext context) {
+        // runAsync wraps the runnable in try-catch, logging exceptions
+        // and sending MESSAGE_MODULES_COMMAND_RUNTIME_ERROR to context
         return runAsync(context, () -> {
             // Long-running operation
             performHeavyComputation();
@@ -239,7 +284,10 @@ public class MyAsyncCommand extends AbstractAsyncCommand {
 protected void start() {
     int frequencyMinutes = config.get().getBackupFrequency();
 
-    ScheduledFuture<?> backupTask = HytaleServer.SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
+    // Note: scheduleWithFixedDelay returns ScheduledFuture<?>, but registerTask
+    // expects ScheduledFuture<Void>. You can either cast or use Callable<Void>.
+    @SuppressWarnings("unchecked")
+    ScheduledFuture<Void> backupTask = (ScheduledFuture<Void>) HytaleServer.SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
         () -> {
             try {
                 getLogger().info("Starting scheduled backup...");
@@ -262,9 +310,9 @@ protected void start() {
 ### Delayed Player Actions
 
 ```java
-// Schedule a timeout for player response
-ScheduledFuture<?> timeout = HytaleServer.SCHEDULED_EXECUTOR.schedule(
-    () -> handleTimeout(player),
+// Schedule a timeout for player response using Callable<Void> to get ScheduledFuture<Void>
+ScheduledFuture<Void> timeout = HytaleServer.SCHEDULED_EXECUTOR.schedule(
+    () -> { handleTimeout(player); return null; },
     10, TimeUnit.SECONDS
 );
 
@@ -326,14 +374,17 @@ public CompletableFuture<Void> loadAndApplyData(World world, String dataId) {
 
 ```java
 // Store reference for later cancellation
-private ScheduledFuture<?> myTask;
+private ScheduledFuture<Void> myTask;
 
 @Override
 protected void start() {
-    myTask = HytaleServer.SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
+    // scheduleWithFixedDelay returns ScheduledFuture<?>, cast to ScheduledFuture<Void>
+    @SuppressWarnings("unchecked")
+    ScheduledFuture<Void> task = (ScheduledFuture<Void>) HytaleServer.SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
         this::periodicWork,
         1, 1, TimeUnit.MINUTES
     );
+    myTask = task;
     getTaskRegistry().registerTask(myTask);
 }
 

@@ -11,11 +11,13 @@ The Hytale HUD system provides comprehensive control over the player's heads-up 
 
 ```
 HudManager (per-player)
-├── visibleHudComponents     - Set of currently visible built-in components
-├── customHud                - Optional custom HUD overlay
+├── visibleHudComponents               - Set of currently visible built-in components
+├── unmodifiableVisibleHudComponents   - Read-only view of visible components
+├── customHud                          - Optional custom HUD overlay (nullable)
 └── Methods for visibility control
 
 CustomUIHud (abstract)
+├── playerRef                - Reference to the player
 ├── build()                  - Define HUD structure using UICommandBuilder
 ├── show()                   - Display the HUD to the player
 └── update()                 - Send incremental updates
@@ -66,7 +68,7 @@ hudManager.showHudComponents(playerRef,
     HudComponent.ObjectivePanel
 );
 
-// Hide specific components
+// Hide specific components (varargs only, no Set overload)
 hudManager.hideHudComponents(playerRef,
     HudComponent.KillFeed,
     HudComponent.Notifications
@@ -79,8 +81,18 @@ hudManager.hideHudComponents(playerRef,
 // Reset to default components and clear custom HUD
 hudManager.resetHud(playerRef);
 
-// Reset entire UI state (closes menus, etc.)
+// Reset entire UI state (sends ResetUserInterfaceState packet)
 hudManager.resetUserInterface(playerRef);
+```
+
+### Querying HUD State
+
+```java
+// Get the current custom HUD (may be null)
+CustomUIHud customHud = hudManager.getCustomHud();
+
+// Get the current set of visible components (returns unmodifiable Set)
+Set<HudComponent> visible = hudManager.getVisibleHudComponents();
 ```
 
 ## HudComponent Enum
@@ -116,7 +128,7 @@ All built-in HUD components:
 
 ### Default Components
 
-The following are visible by default:
+The following components are visible by default (stored in `DEFAULT_HUD_COMPONENTS`):
 
 ```java
 Set.of(
@@ -131,9 +143,13 @@ Set.of(
 )
 ```
 
+:::note
+Notably absent from defaults: `Requests`, `PlayerList`, `BuilderToolsMaterialSlotSelector`
+:::
+
 ## CustomUIHud
 
-Create custom HUD overlays that display alongside built-in components.
+Create custom HUD overlays that display alongside built-in components. The `CustomUIHud` class is abstract and requires implementing the `build()` method.
 
 ### Creating a Custom HUD
 
@@ -161,10 +177,14 @@ public class BossHealthHud extends CustomUIHud {
         this.healthPercent = percent;
         UICommandBuilder builder = new UICommandBuilder();
         builder.set("#health-bar-fill", healthPercent);
-        update(false, builder);  // false = don't clear
+        update(false, builder);  // false = don't clear existing HUD
     }
 }
 ```
+
+:::note
+The `getPlayerRef()` method is inherited from `CustomUIHud` - you can call it directly via `getPlayerRef()`.
+:::
 
 ### Displaying the HUD
 
@@ -184,30 +204,38 @@ hudManager.setCustomHud(playerRef, null);
 
 Display large announcement titles on screen.
 
+### EventTitleUtil Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `DEFAULT_ZONE` | "Void" | Default zone name |
+| `DEFAULT_DURATION` | 4.0f | Default display time in seconds |
+| `DEFAULT_FADE_DURATION` | 1.5f | Default fade duration (used for both in/out) |
+
 ### EventTitleUtil
 
 ```java
 import com.hypixel.hytale.server.core.util.EventTitleUtil;
 import com.hypixel.hytale.server.core.Message;
 
-// Show title to player
+// Show title to player (full parameters)
 EventTitleUtil.showEventTitleToPlayer(
     playerRef,
     Message.raw("Zone Discovered"),           // Primary title
     Message.raw("Welcome to the Dark Forest"), // Secondary title
     true,                                      // isMajor (large display)
-    "ui/icons/forest.png",                    // Optional icon
+    "ui/icons/forest.png",                    // Optional icon (nullable)
     4.0f,                                      // Duration (seconds)
     1.5f,                                      // Fade in duration
     1.5f                                       // Fade out duration
 );
 
-// Simplified version
+// Simplified version (uses default duration and fade)
 EventTitleUtil.showEventTitleToPlayer(
     playerRef,
     Message.translation("zone.name"),
     Message.translation("zone.desc"),
-    true
+    true  // isMajor
 );
 
 // Hide title early
@@ -218,8 +246,21 @@ EventTitleUtil.showEventTitleToWorld(
     Message.raw("Wave 5"),
     Message.raw("Prepare!"),
     true, "ui/icons/warning.png",
-    4.0f, 1.5f, 1.5f, store
+    4.0f, 1.5f, 1.5f,
+    store  // Store<EntityStore>
 );
+
+// Show to all players in the universe (uses Universe.get() internally)
+EventTitleUtil.showEventTitleToUniverse(
+    Message.raw("Server Event"),
+    Message.raw("Global announcement!"),
+    true,
+    "ui/icons/announcement.png",
+    4.0f, 1.5f, 1.5f
+);
+
+// Hide title from all players in world
+EventTitleUtil.hideEventTitleFromWorld(0.5f, store);
 ```
 
 ## Notifications
@@ -232,7 +273,7 @@ Display toast notifications.
 import com.hypixel.hytale.server.core.util.NotificationUtil;
 import com.hypixel.hytale.protocol.packets.interface_.NotificationStyle;
 
-// Simple notification
+// Simple notification (string)
 NotificationUtil.sendNotification(
     playerRef.getPacketHandler(),
     "Quest completed!"
@@ -245,15 +286,44 @@ NotificationUtil.sendNotification(
     NotificationStyle.Success
 );
 
-// With icon and item
+// With icon and style
 NotificationUtil.sendNotification(
     playerRef.getPacketHandler(),
     Message.raw("New Item"),
-    Message.raw("Diamond Sword"),
     "ui/icons/sword.png",
-    itemWithMetadata,
     NotificationStyle.Success
 );
+
+// Full parameters with secondary message, icon, item, and style
+NotificationUtil.sendNotification(
+    playerRef.getPacketHandler(),
+    Message.raw("New Item"),          // Primary message (FormattedMessage via Message)
+    Message.raw("Diamond Sword"),      // Secondary message (nullable)
+    "ui/icons/sword.png",              // Icon path (nullable)
+    itemWithAllMetadata,               // ItemWithAllMetadata (nullable)
+    NotificationStyle.Success          // Style (required, non-null)
+);
+
+// Broadcast to all players in a world
+NotificationUtil.sendNotificationToWorld(
+    Message.raw("Server Notice"),
+    null,                              // Secondary message
+    null,                              // Icon
+    null,                              // Item
+    NotificationStyle.Warning,
+    store                              // Store<EntityStore>
+);
+
+// Broadcast to all players in the universe (uses Universe.get() internally)
+NotificationUtil.sendNotificationToUniverse(
+    Message.raw("Global Announcement"),
+    NotificationStyle.Success
+);
+
+// Alternative universe broadcast overloads
+NotificationUtil.sendNotificationToUniverse("Simple string message");
+NotificationUtil.sendNotificationToUniverse("Primary", "Secondary");
+NotificationUtil.sendNotificationToUniverse(Message.raw("With icon"), "icon.png", NotificationStyle.Default);
 ```
 
 ### NotificationStyle Enum
@@ -271,13 +341,22 @@ Display kill/death messages.
 
 ```java
 import com.hypixel.hytale.protocol.packets.interface_.KillFeedMessage;
+import com.hypixel.hytale.protocol.FormattedMessage;
 
+// KillFeedMessage takes FormattedMessage objects directly
 KillFeedMessage message = new KillFeedMessage(
-    killerMessage.getFormattedMessage(),
-    decedentMessage.getFormattedMessage(),
-    "ui/icons/sword.png"
+    killerFormattedMessage,    // FormattedMessage (nullable) - killer info
+    decedentFormattedMessage,  // FormattedMessage (nullable) - victim info
+    "ui/icons/sword.png"       // String (nullable) - icon path
 );
 playerRef.getPacketHandler().writeNoCache(message);
+
+// Using Message helper to create FormattedMessage
+KillFeedMessage message = new KillFeedMessage(
+    Message.raw("Player1").getFormattedMessage(),
+    Message.raw("Player2").getFormattedMessage(),
+    "ui/icons/sword.png"
+);
 ```
 
 ## Practical Examples

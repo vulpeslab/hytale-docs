@@ -13,7 +13,17 @@ Hytale's server-side GUI system is composed of three distinct subsystems, each d
 Player Component
 ├── WindowManager      - Inventory-based UIs (containers, crafting)
 ├── PageManager        - Custom dialogs and overlays
-└── HudManager         - Persistent on-screen elements
+├── HudManager         - Persistent on-screen elements
+├── HotbarManager      - Player hotbar slot management
+└── WorldMapTracker    - World map UI state
+
+Page Classes
+├── CustomUIPage            - Base class for custom pages
+├── BasicCustomUIPage       - Simple pages without event handling
+└── InteractiveCustomUIPage - Pages with typed event data handling
+
+HUD Classes
+└── CustomUIHud             - Base class for custom HUD overlays
 
 UI Building Tools
 ├── UICommandBuilder   - Build UI commands (set values, append elements)
@@ -46,7 +56,7 @@ UICommandBuilder and UIEventBuilder for creating and updating UI elements dynami
 
 ## Accessing GUI Managers
 
-All three managers are accessed through the `Player` component:
+All three primary managers are accessed through the `Player` component:
 
 ```java
 // Get the Player component from an entity reference
@@ -56,6 +66,13 @@ Player playerComponent = store.getComponent(ref, Player.getComponentType());
 WindowManager windowManager = playerComponent.getWindowManager();
 PageManager pageManager = playerComponent.getPageManager();
 HudManager hudManager = playerComponent.getHudManager();
+
+// Additional UI-related managers
+HotbarManager hotbarManager = playerComponent.getHotbarManager();
+WorldMapTracker worldMapTracker = playerComponent.getWorldMapTracker();
+
+// Reset managers (HUD, windows, camera, movement, world map tracker)
+playerComponent.resetManagers(holder);
 ```
 
 ## When to Use Each System
@@ -146,6 +163,15 @@ UI Assets
 | `WindowManager` | `com.hypixel.hytale.server.core.entity.entities.player.windows` |
 | `PageManager` | `com.hypixel.hytale.server.core.entity.entities.player.pages` |
 | `HudManager` | `com.hypixel.hytale.server.core.entity.entities.player.hud` |
+| `HotbarManager` | `com.hypixel.hytale.server.core.entity.entities.player` |
+| `WorldMapTracker` | `com.hypixel.hytale.server.core.universe.world` |
 | `UICommandBuilder` | `com.hypixel.hytale.server.core.ui.builder` |
 | `UIEventBuilder` | `com.hypixel.hytale.server.core.ui.builder` |
+| `EventData` | `com.hypixel.hytale.server.core.ui.builder` |
 | `Player` | `com.hypixel.hytale.server.core.entity.entities` |
+| `BasicCustomUIPage` | `com.hypixel.hytale.server.core.entity.entities.player.pages` |
+| `CustomUIPage` | `com.hypixel.hytale.server.core.entity.entities.player.pages` |
+| `InteractiveCustomUIPage` | `com.hypixel.hytale.server.core.entity.entities.player.pages` |
+| `CustomUIHud` | `com.hypixel.hytale.server.core.entity.entities.player.hud` |
+| `HudComponent` | `com.hypixel.hytale.protocol.packets.interface_` |
+| `CustomPageLifetime` | `com.hypixel.hytale.protocol.packets.interface_` |

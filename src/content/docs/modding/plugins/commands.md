@@ -10,7 +10,7 @@ Create custom server commands for your plugin. The command system provides a fle
 ## Architecture
 
 ```
-CommandManager (Singleton)
+CommandManager (Singleton via CommandManager.get())
 ├── System Commands (server built-ins)
 └── Plugin Commands (per-plugin via CommandRegistry)
     └── AbstractCommand
@@ -18,20 +18,22 @@ CommandManager (Singleton)
         ├── OptionalArg (--name value)
         ├── DefaultArg (--name value with default)
         ├── FlagArg (--flag boolean switches)
-        └── SubCommands (nested commands)
+        ├── SubCommands (nested commands via addSubCommand)
+        └── UsageVariants (commands with different argument counts via addUsageVariant)
 ```
 
 ## Creating Commands
 
 ### Simple Command
 
-Commands extend `AbstractCommand` and implement the `execute` method which receives a `CommandContext`:
+Commands extend `AbstractCommand` and implement the `execute` method which receives a `CommandContext`. The `execute` method returns a `CompletableFuture<Void>` (which can be `null` for synchronous commands):
 
 ```java
 import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.Message;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class HelloCommand extends AbstractCommand {
@@ -41,7 +43,7 @@ public class HelloCommand extends AbstractCommand {
     }
 
     @Override
-    @Nonnull
+    @Nullable
     protected CompletableFuture<Void> execute(@Nonnull CommandContext context) {
         context.sender().sendMessage(
             Message.raw("Hello, " + context.sender().getDisplayName() + "!")
@@ -68,12 +70,11 @@ Arguments are registered in the constructor using fluent builder methods.
 
 ### Required Arguments
 
-Required arguments are positional and must be provided by the user:
+Required arguments are positional and must be provided by the user. Argument types are provided via the `ArgTypes` class:
 
 ```java
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
-import com.hypixel.hytale.server.core.command.system.arguments.types.StringArgumentType;
-import com.hypixel.hytale.server.core.command.system.arguments.types.IntArgumentType;
+import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 
 public class GiveCommand extends AbstractCommand {
 
@@ -85,17 +86,17 @@ public class GiveCommand extends AbstractCommand {
         super("give", "Give items to a player");
 
         // Register required arguments (order matters for positional args)
-        playerArg = withRequiredArg("player", "Target player", StringArgumentType.INSTANCE);
-        itemArg = withRequiredArg("item", "Item ID", StringArgumentType.INSTANCE);
-        amountArg = withRequiredArg("amount", "Quantity (1-64)", IntArgumentType.ranged(1, 64));
+        playerArg = withRequiredArg("player", "Target player", ArgTypes.STRING);
+        itemArg = withRequiredArg("item", "Item ID", ArgTypes.STRING);
+        amountArg = withRequiredArg("amount", "Quantity", ArgTypes.INTEGER);
     }
 
     @Override
-    @Nonnull
+    @Nullable
     protected CompletableFuture<Void> execute(@Nonnull CommandContext context) {
-        String player = context.get(playerArg);
-        String item = context.get(itemArg);
-        int amount = context.get(amountArg);
+        String player = playerArg.get(context);
+        String item = itemArg.get(context);
+        int amount = amountArg.get(context);
 
         context.sender().sendMessage(
             Message.raw("Gave " + amount + "x " + item + " to " + player)
@@ -111,7 +112,8 @@ Optional arguments use `--name value` syntax:
 
 ```java
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
-import com.hypixel.hytale.server.core.command.system.arguments.types.DoubleArgumentType;
+import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
+import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 
 public class TeleportCommand extends AbstractCommand {
 
@@ -123,21 +125,23 @@ public class TeleportCommand extends AbstractCommand {
     public TeleportCommand() {
         super("tp", "Teleport to coordinates");
 
-        xArg = withRequiredArg("x", "X coordinate", DoubleArgumentType.INSTANCE);
-        yArg = withRequiredArg("y", "Y coordinate", DoubleArgumentType.INSTANCE);
-        zArg = withRequiredArg("z", "Z coordinate", DoubleArgumentType.INSTANCE);
+        xArg = withRequiredArg("x", "X coordinate", ArgTypes.DOUBLE);
+        yArg = withRequiredArg("y", "Y coordinate", ArgTypes.DOUBLE);
+        zArg = withRequiredArg("z", "Z coordinate", ArgTypes.DOUBLE);
 
         // Optional argument: --world <name>
-        worldArg = withOptionalArg("world", "Target world", StringArgumentType.INSTANCE);
+        worldArg = withOptionalArg("world", "Target world", ArgTypes.STRING);
     }
 
     @Override
-    @Nonnull
+    @Nullable
     protected CompletableFuture<Void> execute(@Nonnull CommandContext context) {
-        double x = context.get(xArg);
-        double y = context.get(yArg);
-        double z = context.get(zArg);
-        String world = context.getOrDefault(worldArg, "default");
+        double x = xArg.get(context);
+        double y = yArg.get(context);
+        double z = zArg.get(context);
+
+        // Check if optional arg was provided and get value
+        String world = worldArg.provided(context) ? worldArg.get(context) : "default";
 
         // Teleport implementation
         return CompletableFuture.completedFuture(null);

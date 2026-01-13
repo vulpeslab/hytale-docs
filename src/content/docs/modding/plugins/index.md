@@ -42,6 +42,8 @@ package com.example;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 
+import java.util.logging.Level;
+
 public class MyPlugin extends JavaPlugin {
 
     public MyPlugin(JavaPluginInit init) {
@@ -50,17 +52,17 @@ public class MyPlugin extends JavaPlugin {
 
     @Override
     protected void setup() {
-        getLogger().info("Plugin setup!");
+        getLogger().at(Level.INFO).log("Plugin setup!");
     }
 
     @Override
     protected void start() {
-        getLogger().info("Plugin started!");
+        getLogger().at(Level.INFO).log("Plugin started!");
     }
 
     @Override
     protected void shutdown() {
-        getLogger().info("Plugin shutting down!");
+        getLogger().at(Level.INFO).log("Plugin shutting down!");
     }
 }
 ```

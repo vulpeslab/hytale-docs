@@ -23,7 +23,8 @@ Every plugin requires a `manifest.json` file in the root of your JAR:
   "Authors": [
     {
       "Name": "Your Name",
-      "Website": "https://example.com"
+      "Email": "you@example.com",
+      "Url": "https://example.com"
     }
   ],
   "Website": "https://example.com/myplugin",
@@ -51,7 +52,7 @@ Every plugin requires a `manifest.json` file in the root of your JAR:
 | `Version` | Yes | Semantic version string (e.g., `1.0.0`) |
 | `Description` | No | Short description of the plugin |
 | `Main` | Yes | Fully qualified class name of the main plugin class |
-| `Authors` | No | Array of author objects with `Name` and optional `Website` |
+| `Authors` | No | Array of author objects with `Name`, `Email`, and `Url` fields (all optional) |
 | `Website` | No | Plugin website URL |
 | `ServerVersion` | No | Required server version range (e.g., `>=0.1.0`) |
 | `Dependencies` | No | Map of required plugin identifiers to version ranges |
@@ -59,6 +60,7 @@ Every plugin requires a `manifest.json` file in the root of your JAR:
 | `LoadBefore` | No | Map of plugins that should load after this plugin |
 | `DisabledByDefault` | No | If true, plugin won't load unless explicitly enabled |
 | `IncludesAssetPack` | No | If true, registers the JAR as an asset pack |
+| `SubPlugins` | No | Array of nested plugin manifests (for multi-plugin JARs) |
 
 The plugin identifier is formed as `Group:Name` (e.g., `com.example:MyPlugin`).
 
@@ -116,6 +118,8 @@ public class MyPlugin extends JavaPlugin {
 The plugin system fires events at each lifecycle stage:
 
 ```java
+import com.hypixel.hytale.server.core.event.events.BootEvent;
+
 // In setup()
 getEventRegistry().register(BootEvent.class, event -> {
     getLogger().info("Server booted!");
@@ -124,18 +128,34 @@ getEventRegistry().register(BootEvent.class, event -> {
 
 ## Plugin Registries
 
-Each plugin has access to several registries:
+Each plugin has access to several registries for registering various components:
+
+| Registry | Getter Method | Purpose |
+|----------|---------------|---------|
+| `CommandRegistry` | `getCommandRegistry()` | Register custom commands |
+| `EventRegistry` | `getEventRegistry()` | Register event listeners |
+| `TaskRegistry` | `getTaskRegistry()` | Register async tasks |
+| `EntityRegistry` | `getEntityRegistry()` | Register custom entities |
+| `BlockStateRegistry` | `getBlockStateRegistry()` | Register block states |
+| `AssetRegistry` | `getAssetRegistry()` | Register custom assets |
+| `ClientFeatureRegistry` | `getClientFeatureRegistry()` | Register client features |
+| `EntityStoreRegistry` | `getEntityStoreRegistry()` | Register entity storage components |
+| `ChunkStoreRegistry` | `getChunkStoreRegistry()` | Register chunk storage components |
+
+### Example Usage
 
 ```java
+import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
+
 @Override
 protected void setup() {
     // Commands
     getCommandRegistry().registerCommand(new MyCommand());
 
-    // Events
-    getEventRegistry().register(PlayerJoinEvent.class, this::onPlayerJoin);
+    // Events - use PlayerConnectEvent for player connection handling
+    getEventRegistry().register(PlayerConnectEvent.class, this::onPlayerConnect);
 
-    // Tasks
+    // Tasks - register a CompletableFuture<Void> for async operations
     getTaskRegistry().registerTask(myFuture);
 
     // Logging
@@ -176,7 +196,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 

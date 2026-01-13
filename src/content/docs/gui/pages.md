@@ -28,10 +28,12 @@ The `PageManager` handles opening, closing, and updating pages for each player. 
 | Method | Description |
 |--------|-------------|
 | `setPage(ref, store, page)` | Set a standard page (from Page enum) |
-| `setPage(ref, store, page, canClose)` | Set page with close-through-interaction option |
+| `setPage(ref, store, page, canCloseThroughInteraction)` | Set page with close-through-interaction option |
+| `setPageWithWindows(ref, store, page, canCloseThroughInteraction, windows...)` | Set page with inventory windows |
 | `openCustomPage(ref, store, customPage)` | Open a custom UI page |
 | `openCustomPageWithWindows(ref, store, page, windows...)` | Open custom page with inventory windows |
 | `getCustomPage()` | Get the currently open custom page |
+| `init(playerRef, windowManager)` | Initialize the PageManager (called automatically) |
 
 ### Standard Page Enum
 
@@ -85,8 +87,14 @@ public abstract class CustomUIPage {
     // Rebuild the entire page UI
     protected void rebuild();
 
-    // Send partial updates to the page
-    protected void sendUpdate(UICommandBuilder commandBuilder);
+    // Send partial updates to the page (multiple overloads)
+    protected void sendUpdate();  // Rebuild without arguments
+    protected void sendUpdate(@Nullable UICommandBuilder commandBuilder);
+    protected void sendUpdate(@Nullable UICommandBuilder commandBuilder, boolean clear);
+
+    // Get/set the page lifetime
+    public CustomPageLifetime getLifetime();
+    public void setLifetime(CustomPageLifetime lifetime);
 
     // Close this page
     protected void close();
@@ -123,7 +131,14 @@ public class WelcomePage extends BasicCustomUIPage {
 
 ### InteractiveCustomUIPage<T>
 
-For pages that handle user interactions:
+For pages that handle user interactions. This class extends `CustomUIPage` with typed event handling and has an additional `sendUpdate` signature:
+
+```java
+// Additional sendUpdate signature for interactive pages
+protected void sendUpdate(@Nullable UICommandBuilder commandBuilder, 
+                          @Nullable UIEventBuilder eventBuilder, 
+                          boolean clear);
+```
 
 ```java
 public class SettingsPage extends InteractiveCustomUIPage<SettingsEventData> {
@@ -182,6 +197,98 @@ public static class SettingsEventData {
 - **Static keys** (e.g., `"action"`) - Sent as literal values
 - **Reference keys** (prefixed with `@`, e.g., `"@value"`) - Reference UI element values at event time
 
+### EventData Methods
+
+`EventData` only supports `String` and `Enum` values. Numbers must be converted to strings:
+
+```java
+// Static factory method
+EventData.of("key", "value")
+
+// Append methods (returns self for chaining)
+.append("stringKey", "stringValue")
+.append("enumKey", MyEnum.VALUE)
+
+// For integers, convert to string
+EventData.of("action", "buy").append("index", Integer.toString(i))
+```
+
+## UIEventBuilder
+
+The `UIEventBuilder` creates event bindings for UI elements:
+
+```java
+// Basic event binding
+events.addEventBinding(CustomUIEventBindingType.Activating, "#Button");
+
+// With event data
+events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("action", "click"));
+
+// With locksInterface parameter (default is true)
+events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("action", "click"), false);
+```
+
+### CustomUIEventBindingType
+
+| Type | Description |
+|------|-------------|
+| `Activating` | Element clicked/activated |
+| `RightClicking` | Right mouse button click |
+| `DoubleClicking` | Double click |
+| `MouseEntered` | Mouse enters element |
+| `MouseExited` | Mouse exits element |
+| `ValueChanged` | Input value changed |
+| `ElementReordered` | Element reordered in list |
+| `Validating` | Input validation |
+| `Dismissing` | Page being dismissed |
+| `FocusGained` | Element gained focus |
+| `FocusLost` | Element lost focus |
+| `KeyDown` | Key pressed |
+| `MouseButtonReleased` | Mouse button released |
+| `SlotClicking` | Inventory slot clicked |
+| `SlotDoubleClicking` | Inventory slot double-clicked |
+| `SlotMouseEntered` | Mouse enters slot |
+| `SlotMouseExited` | Mouse exits slot |
+| `DragCancelled` | Drag operation cancelled |
+| `Dropped` | Element dropped |
+| `SlotMouseDragCompleted` | Slot drag completed |
+| `SlotMouseDragExited` | Drag exited slot |
+| `SlotClickReleaseWhileDragging` | Click released while dragging |
+| `SlotClickPressWhileDragging` | Click pressed while dragging |
+| `SelectedTabChanged` | Tab selection changed |
+
+## UICommandBuilder
+
+The `UICommandBuilder` creates UI update commands:
+
+### Layout Commands
+
+| Method | Description |
+|--------|-------------|
+| `append(documentPath)` | Append UI document at root |
+| `append(selector, documentPath)` | Append UI document to element |
+| `appendInline(selector, document)` | Append inline UI definition |
+| `insertBefore(selector, documentPath)` | Insert UI document before element |
+| `insertBeforeInline(selector, document)` | Insert inline UI before element |
+| `clear(selector)` | Clear element's children |
+| `remove(selector)` | Remove element from DOM |
+
+### Value Setting Commands
+
+| Method | Description |
+|--------|-------------|
+| `set(selector, String)` | Set string value |
+| `set(selector, boolean)` | Set boolean value |
+| `set(selector, int)` | Set integer value |
+| `set(selector, float)` | Set float value |
+| `set(selector, double)` | Set double value |
+| `set(selector, Message)` | Set localized message |
+| `set(selector, Value<T>)` | Set reference value |
+| `set(selector, T[])` | Set array of values |
+| `set(selector, List<T>)` | Set list of values |
+| `setNull(selector)` | Set null value |
+| `setObject(selector, Object)` | Set compatible object (Area, ItemGridSlot, ItemStack, etc.) |
+
 ## Complete Interactive Example
 
 ```java
@@ -211,7 +318,7 @@ public class ShopPage extends InteractiveCustomUIPage<ShopPage.ShopEventData> {
             events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#BuyBtn" + i,
-                EventData.of("action", "buy").append("index", i)
+                EventData.of("action", "buy").append("index", Integer.toString(i))
             );
         }
 
@@ -277,6 +384,29 @@ private void updateScore(int newScore) {
 // Completely rebuild the page
 rebuild();
 ```
+
+## ChoiceBasePage
+
+A specialized page for presenting choices/dialogs to players. Extends `InteractiveCustomUIPage<ChoicePageEventData>`:
+
+```java
+public abstract class ChoiceBasePage extends InteractiveCustomUIPage<ChoicePageEventData> {
+    
+    public ChoiceBasePage(PlayerRef playerRef, ChoiceElement[] elements, String pageLayout) {
+        super(playerRef, CustomPageLifetime.CanDismiss, ChoicePageEventData.CODEC);
+        // ...
+    }
+    
+    protected ChoiceElement[] getElements();
+    protected String getPageLayout();
+}
+```
+
+The page automatically:
+- Appends the page layout
+- Clears `#ElementList`
+- Adds buttons for each `ChoiceElement` with `Activating` event bindings
+- Handles element selection and runs associated `ChoiceInteraction`s
 
 ## Built-in UI Files
 

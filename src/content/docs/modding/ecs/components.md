@@ -27,20 +27,40 @@ Lightweight references to entity data. A `Ref` is a pointer to an entity within 
 
 ```java
 public class Ref<ECS_TYPE> {
+    public static final Ref<?>[] EMPTY_ARRAY = new Ref[0];
+
+    @Nonnull
     private final Store<ECS_TYPE> store;
     private volatile int index;
+    private volatile transient int hashCode;
+    private volatile Throwable invalidatedBy;
 
+    public Ref(@Nonnull Store<ECS_TYPE> store) {
+        this(store, Integer.MIN_VALUE);
+    }
+
+    public Ref(@Nonnull Store<ECS_TYPE> store, int index) {
+        this.store = store;
+        this.index = index;
+        this.hashCode = this.hashCode0();
+    }
+
+    @Nonnull
     public Store<ECS_TYPE> getStore() {
         return this.store;
     }
 
+    public int getIndex() {
+        return this.index;
+    }
+
     public boolean isValid() {
-        return index != Integer.MIN_VALUE;
+        return this.index != Integer.MIN_VALUE;
     }
 
     public void validate() {
         if (this.index == Integer.MIN_VALUE) {
-            throw new IllegalStateException("Invalid entity reference!");
+            throw new IllegalStateException("Invalid entity reference!", this.invalidatedBy);
         }
     }
 }
@@ -56,6 +76,7 @@ Data containers attached to entities. Components must implement `Cloneable` for 
 
 ```java
 public interface Component<ECS_TYPE> extends Cloneable {
+    @Nonnull
     public static final Component[] EMPTY_ARRAY = new Component[0];
 
     @Nullable
@@ -338,8 +359,8 @@ public class MySystem extends TickingSystem<EntityStore> {
         return Set.of(
             // Run after OtherSystem
             new SystemDependency<>(Order.AFTER, OtherSystem.class),
-            // Run before AnotherSystem with high priority
-            new SystemDependency<>(Order.BEFORE, AnotherSystem.class, OrderPriority.HIGH)
+            // Run before AnotherSystem with closer priority (executes closer to target)
+            new SystemDependency<>(Order.BEFORE, AnotherSystem.class, OrderPriority.CLOSE)
         );
     }
 
@@ -349,6 +370,13 @@ public class MySystem extends TickingSystem<EntityStore> {
     }
 }
 ```
+
+Available `OrderPriority` values:
+- `CLOSEST` - Highest priority, executes closest to the target system
+- `CLOSE` - High priority
+- `NORMAL` - Default priority
+- `FURTHER` - Lower priority
+- `FURTHEST` - Lowest priority, executes furthest from the target system
 
 ## Resources (Global State)
 
@@ -424,9 +452,9 @@ All entity modifications go through `CommandBuffer` for thread safety:
 CommandBuffer<EntityStore> buffer = store.getCommandBuffer();
 
 // Queue operations - these don't execute immediately
-Ref<EntityStore> newEntity = buffer.addEntity(holder, AddReason.SPAWNED);
+Ref<EntityStore> newEntity = buffer.addEntity(holder, AddReason.SPAWN);
 buffer.addComponent(newEntity, healthType, new HealthComponent(100f));
-buffer.removeEntity(oldEntity, RemoveReason.KILLED);
+buffer.removeEntity(oldEntity, RemoveReason.REMOVE);
 
 // Run arbitrary code at end of tick
 buffer.run(store -> {
@@ -436,19 +464,35 @@ buffer.run(store -> {
 // Operations execute at end of tick
 ```
 
+Available `AddReason` values:
+- `SPAWN` - Entity is being spawned (e.g., player joins, mob spawns)
+- `LOAD` - Entity is being loaded from storage
+
+Available `RemoveReason` values:
+- `REMOVE` - Entity is being permanently removed (e.g., death, despawn)
+- `UNLOAD` - Entity is being unloaded to storage (e.g., chunk unload)
+
 ## Built-in Components
 
 Hytale provides many built-in components for common functionality:
 
-| Component | Description |
-|-----------|-------------|
-| `TransformComponent` | Entity position, rotation, scale |
-| `ModelComponent` | Visual model reference |
-| `ItemComponent` | Item data for dropped items |
-| `PlayerSkinComponent` | Player skin data |
-| `DisplayNameComponent` | Entity display name |
-| `AudioComponent` | Sound emission |
-| `CollisionResultComponent` | Collision detection results |
+| Component | Package | Description |
+|-----------|---------|-------------|
+| `TransformComponent` | `modules.entity.component` | Entity position and rotation (uses `Vector3d` for position, `Vector3f` for rotation) |
+| `ModelComponent` | `modules.entity.component` | Visual model reference |
+| `EntityScaleComponent` | `modules.entity.component` | Entity scale modifier |
+| `PositionDataComponent` | `modules.entity.component` | Additional position-related data |
+| `BoundingBox` | `modules.entity.component` | Entity collision bounding box |
+| `ItemComponent` | `modules.entity.item` | Item data for dropped items |
+| `PlayerSkinComponent` | `modules.entity.player` | Player skin data |
+| `DisplayNameComponent` | `modules.entity.component` | Entity display name |
+| `AudioComponent` | `modules.entity.component` | Sound emission |
+| `MovementAudioComponent` | `modules.entity.component` | Movement-related sounds |
+| `CollisionResultComponent` | `modules.entity.component` | Collision detection results |
+| `UUIDComponent` | `entity` | Unique entity identifier |
+| `EffectControllerComponent` | `entity.effect` | Active effects on entity |
+
+All built-in components are in the `com.hypixel.hytale.server.core` package hierarchy.
 
 ## Best Practices
 

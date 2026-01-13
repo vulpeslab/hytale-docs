@@ -95,16 +95,73 @@ java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
 |----------|-------------|
 | `--assets <Path>` | Path to assets directory or `.zip` file (default: `../HytaleAssets`) |
 | `-b, --bind <Address>` | Address and port to listen on, comma-separated for multiple (default: `0.0.0.0:5520`) |
-| `--auth-mode <Mode>` | Authentication mode: `authenticated`, `offline`, or `insecure` |
-| `--universe <Path>` | Path to the universe directory |
+| `-t, --transport <Type>` | Transport type: `TCP` or `QUIC` (default: `QUIC`) |
+| `--auth-mode <Mode>` | Authentication mode: `AUTHENTICATED`, `OFFLINE`, or `INSECURE` (default: `AUTHENTICATED`) |
+| `--universe <Path>` | Path to the universe directory (default: `universe`) |
 | `--mods <Paths>` | Comma-separated list of additional mod directories |
+| `--world-gen <Path>` | World generation directory |
 | `--backup` | Enable automatic backups |
 | `--backup-dir <Path>` | Directory for backup files (required if `--backup` is set) |
-| `--backup-frequency <Minutes>` | Backup interval in minutes (default: 30) |
-| `--backup-max-count <Count>` | Maximum number of backups to keep (default: 5) |
-| `--boot-command <Commands>` | Comma-separated commands to run on server start |
+| `--backup-frequency <Minutes>` | Backup interval in minutes (default: `30`) |
+| `--backup-max-count <Count>` | Maximum number of backups to keep (default: `5`) |
+| `--boot-command <Commands>` | Comma-separated commands to run on server start (executed synchronously in order) |
+| `--validate-assets` | Exit with an error code if any assets are invalid |
+| `--validate-prefabs <Options>` | Exit with an error code if any prefabs are invalid (optional comma-separated validation options) |
+| `--validate-world-gen` | Exit with an error code if default world generation is invalid |
+| `--shutdown-after-validate` | Automatically shutdown the server after validation |
+| `--generate-schema` | Generate schema, save it to the assets directory, and exit |
+| `--log <Logger:Level>` | Set logger levels (comma-separated, e.g., `com.example:INFO`) |
+| `--bare` | Run the server bare (without loading worlds, binding to ports, or creating directories) |
 | `--help` | Print help message |
 | `--version` | Print version information |
+
+#### Advanced Options
+
+| Argument | Description |
+|----------|-------------|
+| `--prefab-cache <Path>` | Prefab cache directory for immutable assets |
+| `--disable-cpb-build` | Disable building of compact prefab buffers |
+| `--disable-file-watcher` | Disable file watching for asset changes |
+| `--disable-sentry` | Disable Sentry error reporting |
+| `--disable-asset-compare` | Disable asset comparison |
+| `--force-network-flush <Boolean>` | Force network flush (default: `true`) |
+| `--allow-op` | Allow self-op command |
+
+#### Early Plugin Options
+
+| Argument | Description |
+|----------|-------------|
+| `--accept-early-plugins` | Acknowledge that loading early plugins is unsupported and may cause stability issues |
+| `--early-plugins <Paths>` | Comma-separated list of early plugin directories to load from |
+
+#### Singleplayer Options
+
+| Argument | Description |
+|----------|-------------|
+| `--singleplayer` | Run in singleplayer mode |
+| `--owner-name <Name>` | Owner player name |
+| `--owner-uuid <UUID>` | Owner player UUID |
+| `--client-pid <PID>` | Client process ID |
+
+#### Authentication Options
+
+| Argument | Description |
+|----------|-------------|
+| `--session-token <Token>` | Session token for Session Service API |
+| `--identity-token <JWT>` | Identity token (JWT) |
+
+#### Migration Options
+
+| Argument | Description |
+|----------|-------------|
+| `--migrations <Mappings>` | Migrations to run (format: `name=path,name2=path2`) |
+| `--migrate-worlds <Worlds>` | Comma-separated list of worlds to migrate (requires `--migrations`) |
+
+#### Debug Options
+
+| Argument | Description |
+|----------|-------------|
+| `--event-debug` | Enable event debugging |
 
 ### Custom Port Example
 
@@ -145,7 +202,7 @@ chmod +x start.sh
 
 ## Firewall Configuration
 
-Hytale uses **UDP** (not TCP) with the **QUIC protocol**.
+By default, Hytale uses **UDP** with the **QUIC protocol**. However, the server also supports TCP transport via the `--transport TCP` flag.
 
 ### Windows Firewall
 

@@ -35,7 +35,7 @@ The Hytale server uses a sophisticated networking layer based on Netty with supp
 | VarInt | 7-bit encoding, max 5 bytes |
 | Strings | UTF-8 with VarInt length prefix |
 | Transport | QUIC (UDP) primary, TCP fallback |
-| Max Payload | ~1.6GB |
+| Max Payload | ~1.56GB (0x64000000 bytes) |
 
 ### Packet Interface
 
@@ -50,14 +50,18 @@ public interface Packet {
 ### Intercepting Packets
 
 ```java
-// Watch inbound packets
-PacketFilter reg = PacketAdapters.registerInbound(
-    (PlayerRef player, Packet packet) -> {
-        // Monitor or filter
-        return false; // true to consume
+import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
+import com.hypixel.hytale.server.core.io.adapter.PacketFilter;
+import com.hypixel.hytale.server.core.io.adapter.PlayerPacketFilter;
+
+// Player-specific filter (only fires for in-game players)
+PacketFilter filter = PacketAdapters.registerInbound(
+    (PlayerPacketFilter) (player, packet) -> {
+        // Return true to consume/block the packet
+        return false;
     }
 );
 
-// Cleanup
-PacketAdapters.deregisterInbound(reg);
+// Cleanup when done
+PacketAdapters.deregisterInbound(filter);
 ```
