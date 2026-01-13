@@ -5,15 +5,13 @@ sidebar:
   order: 1
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
-<Aside type="caution" title="Early Access & Work in Progress">
+:::caution[Early Access & Work in Progress]
 **Hytale is currently in early access.** This documentation is unofficial and created through community decompilation and analysis.
 
 - Content is under heavy construction and may be incomplete or change frequently
 - Some details may become outdated as Hytale updates
 - Found an error or want to contribute? [Report it on GitHub](https://github.com/vulpeslab/hytale-docs/issues)
-</Aside>
+:::
 
 Welcome to the Hytale Server documentation! This guide will help you get started with running your own Hytale dedicated server.
 
