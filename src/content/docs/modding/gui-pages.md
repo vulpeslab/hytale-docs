@@ -797,6 +797,181 @@ private void refreshList(List<String> items) {
 }
 ```
 
+## UI File System (.ui Files)
+
+Hytale uses `.ui` files as text-based assets that define UI layouts, styles, and components. These files are loaded by the client and referenced by server-side code via `UICommandBuilder`.
+
+### File Format
+
+UI files are registered as text assets and can be edited in the asset editor:
+
+```java
+assetTypeRegistry.registerAssetType(
+    new CommonAssetTypeHandler("UI", null, ".ui", AssetEditorEditorType.Text)
+);
+```
+
+### Directory Structure
+
+UI files follow an organized directory structure:
+
+```
+UI Assets
+├── Common/
+│   └── TextButton.ui          # Reusable button component
+├── Common.ui                   # Global styles and constants
+└── Pages/
+    ├── BasicTextButton.ui     # Simple button templates
+    ├── [Feature]Page.ui       # Main page layouts
+    ├── [Feature]*.ui          # Related sub-components
+    └── [SubFeature]/          # Nested feature folders
+        └── *.ui
+```
+
+### Known UI Files
+
+Based on decompiled code analysis, the following `.ui` files are referenced:
+
+#### Common/Shared UI Files
+
+| File Path | Description |
+|-----------|-------------|
+| `Common.ui` | Global styles (`DefaultTextButtonStyle`, `SecondaryTextButtonStyle`) |
+| `Common/TextButton.ui` | Reusable button with `LabelStyle`, `SelectedLabelStyle` |
+
+#### Page UI Files
+
+| File Path | Purpose |
+|-----------|---------|
+| `Pages/BasicTextButton.ui` | Simple text button template |
+| `Pages/DialogPage.ui` | Dialog/conversation interface |
+| `Pages/ShopPage.ui` | Shop interface layout |
+| `Pages/ShopItemButton.ui` | Individual shop item button |
+| `Pages/BarterPage.ui` | Barter trading interface |
+| `Pages/BarterTradeRow.ui` | Individual trade row element |
+| `Pages/GridLayoutSpacer.ui` | Grid layout spacing element |
+| `Pages/RespawnPage.ui` | Death/respawn screen |
+| `Pages/DroppedItemElement.ui` | Dropped item display |
+| `Pages/RespawnPointRenamePopup.ui` | Respawn point naming dialog |
+| `Pages/RespawnPointSelectPage.ui` | Respawn point selection |
+| `Pages/RespawnPointNearbyPage.ui` | Nearby respawn points list |
+| `Pages/RespawnPointButton.ui` | Respawn button with styles |
+| `Pages/WarpListPage.ui` | Warp/teleport list |
+| `Pages/WarpListEntry.ui` | Warp list entry element |
+| `Pages/TeleporterSettingsPage.ui` | Teleporter settings |
+| `Pages/InstanceListPage.ui` | Instance management |
+| `Pages/ConfigureInstanceBlockPage.ui` | Instance block configuration |
+| `Pages/ChangeModelPage.ui` | Model selection interface |
+| `Pages/CommandListPage.ui` | Command browser |
+| `Pages/SubCommand.ui` | Subcommand display |
+| `Pages/CommandVariant.ui` | Command variant element |
+| `Pages/Parameter.ui` | Command parameter element |
+| `Pages/ArgumentType.ui` | Argument type display |
+| `Pages/PluginListPage.ui` | Plugin browser |
+| `Pages/PluginListButton.ui` | Plugin list button |
+| `Pages/EntitySpawnPage.ui` | Entity spawner interface |
+| `Pages/ParticleSpawnPage.ui` | Particle spawner interface |
+| `Pages/PlaySoundPage.ui` | Sound player interface |
+| `Pages/ChunkTintPage.ui` | Chunk tinting settings |
+| `Pages/LaunchPadPage.ui` | Launch pad configuration |
+| `Pages/PrefabSpawnerPage.ui` | Prefab spawner settings |
+| `Pages/ItemRepairPage.ui` | Item repair interface |
+| `Pages/ItemRepairElement.ui` | Repair item element |
+| `Pages/ObjectiveAdminPanelPage.ui` | Objective admin panel |
+| `Pages/ObjectiveDataSlot.ui` | Objective data slot |
+| `Pages/PortalDeviceSummonPage.ui` | Portal summoning interface |
+| `Pages/PortalDeviceActivePage.ui` | Active portal display |
+| `Pages/PortalDeviceErrorPage.ui` | Portal error display |
+| `Pages/PortalPillElement.ui` | Portal pill element |
+| `Pages/PortalBulletPoint.ui` | Portal bullet point |
+| `Pages/PrefabPage.ui` | Prefab browser |
+| `Pages/PrefabSavePage.ui` | Prefab save dialog |
+| `Pages/PrefabTeleportPage.ui` | Prefab teleporter |
+| `Pages/PrefabEditorLoadSettingsPage.ui` | Prefab editor settings |
+| `Pages/PrefabEditorSaveSettingsPage.ui` | Prefab save settings |
+| `Pages/PrefabEditorExitConfirmPage.ui` | Exit confirmation |
+| `Pages/ObjImportPage.ui` | OBJ file import |
+| `Pages/ImageImportPage.ui` | Image import |
+| `Pages/ScriptedBrushPage.ui` | Scripted brush list |
+| `Pages/MemoriesCategoryPanel.ui` | Memories category panel |
+| `Pages/MemoryCategory.ui` | Memory category element |
+| `Pages/MemoriesPanel.ui` | Memories panel |
+| `Pages/Memory.ui` | Individual memory element |
+| `Pages/ChestMarkerElement.ui` | Chest marker element |
+
+### Naming Conventions
+
+UI files follow consistent naming patterns:
+
+| Pattern | Example | Usage |
+|---------|---------|-------|
+| `[Feature]Page.ui` | `ShopPage.ui`, `DialogPage.ui` | Main page layouts |
+| `[Feature]Button.ui` | `ShopItemButton.ui`, `PluginListButton.ui` | Button templates |
+| `[Feature]Element.ui` | `DroppedItemElement.ui`, `PortalPillElement.ui` | Reusable elements |
+| `[Feature]Entry.ui` | `WarpListEntry.ui` | List entry items |
+| `[Feature]Slot.ui` | `ObjectiveDataSlot.ui` | Slot elements |
+| `[Feature]Row.ui` | `BarterTradeRow.ui` | Row layouts |
+
+### Element Selector Syntax
+
+UI elements are referenced using CSS-like selectors:
+
+| Syntax | Description | Example |
+|--------|-------------|---------|
+| `#ElementId` | Select by ID | `#SaveButton` |
+| `#ElementId.Property` | Access property | `#Label.Text` |
+| `#Parent[index]` | Array indexing | `#ItemList[0]` |
+| `#Parent #Child` | Nested selection | `#Container #Title` |
+| `#Parent #Child.Property` | Nested property | `#List[0] #Name.Text` |
+
+### Referencing Styles from UI Files
+
+Use `Value.ref()` to reference styles defined in UI files:
+
+```java
+// Reference a style from another UI file
+Value<String> buttonStyle = Value.ref("Common.ui", "DefaultTextButtonStyle");
+commandBuilder.set("#MyButton.Style", buttonStyle);
+
+// Reference from component file
+Value<String> labelStyle = Value.ref("Pages/BasicTextButton.ui", "SelectedLabelStyle");
+commandBuilder.set("#Label.Style", labelStyle);
+
+// Reference respawn button styles
+Value<String> defaultStyle = Value.ref("Pages/RespawnPointButton.ui", "DefaultRespawnButtonStyle");
+Value<String> selectedStyle = Value.ref("Pages/RespawnPointButton.ui", "SelectedRespawnButtonStyle");
+```
+
+### Loading UI Files
+
+UI files are loaded using `UICommandBuilder`:
+
+```java
+UICommandBuilder builder = new UICommandBuilder();
+
+// Load main page layout
+builder.append("Pages/ShopPage.ui");
+
+// Append child elements into containers
+builder.append("#ItemContainer", "Pages/ShopItemButton.ui");
+builder.append("#ItemContainer", "Pages/ShopItemButton.ui");
+
+// Set properties on loaded elements
+builder.set("#ItemContainer[0] #Name.Text", "Sword");
+builder.set("#ItemContainer[0] #Price.Text", "100 gold");
+builder.set("#ItemContainer[1] #Name.Text", "Shield");
+builder.set("#ItemContainer[1] #Price.Text", "75 gold");
+```
+
+### Creating Custom UI Files
+
+When creating custom pages, follow these conventions:
+
+1. **Page files** - Name as `[Feature]Page.ui` and place in `Pages/`
+2. **Component files** - Name descriptively and place in `Common/` or alongside pages
+3. **Define styles** - Export reusable styles for server-side reference
+4. **Use consistent IDs** - Follow existing naming patterns for element IDs
+
 ## Best Practices
 
 1. **Use appropriate lifetime** - Choose `CantClose` only when necessary (e.g., death screen)
@@ -809,3 +984,5 @@ private void refreshList(List<String> items) {
 8. **Check validity** - Verify entity references are valid before processing events
 9. **Use suppliers** - Implement `CustomPageSupplier` for interaction-triggered pages
 10. **Define codecs properly** - Create `BuilderCodec` for your event data classes
+11. **Organize UI files** - Keep page layouts in `Pages/`, shared components in `Common/`
+12. **Reference styles** - Use `Value.ref()` to reuse styles across UI files

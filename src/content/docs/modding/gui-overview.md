@@ -19,6 +19,11 @@ UI Building Tools
 ├── UICommandBuilder   - Build UI commands (set values, append elements)
 ├── UIEventBuilder     - Bind UI events to server callbacks
 └── EventData          - Pass parameters with events
+
+UI Assets
+├── .ui files          - Text-based layout definitions
+├── Common.ui          - Global styles and constants
+└── Pages/*.ui         - Page-specific layouts and components
 ```
 
 ## Accessing GUI Managers
@@ -485,6 +490,65 @@ Player playerComponent = store.getComponent(ref, Player.getComponentType());
 PageManager pageManager = playerComponent.getPageManager();
 pageManager.openCustomPage(ref, store, new MyCustomPage(playerRef));
 ```
+
+---
+
+## UI File System (.ui Files)
+
+Hytale uses `.ui` files as the client-side layout format. These text-based assets define UI structure, styles, and components that are referenced by server-side code.
+
+### Overview
+
+UI files are registered as text assets in the engine:
+
+```java
+assetTypeRegistry.registerAssetType(
+    new CommonAssetTypeHandler("UI", null, ".ui", AssetEditorEditorType.Text)
+);
+```
+
+### Directory Structure
+
+```
+UI Assets
+├── Common/
+│   └── TextButton.ui          # Reusable components
+├── Common.ui                   # Global styles
+└── Pages/
+    ├── [Feature]Page.ui       # Main layouts
+    └── [Feature]Element.ui    # Sub-components
+```
+
+### Loading UI Files
+
+```java
+UICommandBuilder builder = new UICommandBuilder();
+
+// Load main page layout
+builder.append("Pages/MyPage.ui");
+
+// Append child elements into containers
+builder.append("#Container", "Pages/MyElement.ui");
+
+// Reference styles from other UI files
+builder.set("#Button.Style", Value.ref("Common.ui", "DefaultTextButtonStyle"));
+```
+
+### Known UI Files
+
+The game includes numerous built-in UI files for pages like:
+
+- `Pages/DialogPage.ui` - NPC conversation dialogs
+- `Pages/ShopPage.ui` - Shop interfaces with `ShopItemButton.ui`
+- `Pages/BarterPage.ui` - Trading with `BarterTradeRow.ui`
+- `Pages/RespawnPage.ui` - Death/respawn with point selection
+- `Pages/WarpListPage.ui` - Teleportation lists
+- `Pages/CommandListPage.ui` - Command browser
+- `Pages/PluginListPage.ui` - Plugin management
+- `Pages/PrefabPage.ui` - Prefab browser and editor tools
+- `Pages/MemoriesPanel.ui` - Collection/memories display
+
+See the [Custom Pages System](/modding/gui-pages#ui-file-system-ui-files) documentation for a complete list and detailed usage.
 
 ## Package References
 
