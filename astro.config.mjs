@@ -56,14 +56,41 @@ export default defineConfig({
 								{ label: 'Entity Stats', slug: 'modding/ecs/entity-stats' },
 								{ label: 'Physics', slug: 'modding/ecs/physics' },
 								{ label: 'Player Persistence', slug: 'modding/ecs/player-persistence' },
-								{
-									label: 'Core Systems',
-									items: [
-										{ label: 'Damage System', slug: 'modding/ecs/systems/damage' },
-										{ label: 'Movement & Locomotion', slug: 'modding/ecs/systems/movement' },
-										{ label: 'Mounts System', slug: 'modding/ecs/systems/mounts' },
-									],
-								},
+							],
+						},
+						{
+							label: 'Gameplay Systems',
+							items: [
+								{ label: 'Overview', slug: 'modding/systems' },
+								{ label: 'Damage', slug: 'modding/systems/damage' },
+								{ label: 'Movement & Locomotion', slug: 'modding/systems/movement' },
+								{ label: 'Mounts', slug: 'modding/systems/mounts' },
+								{ label: 'Interactions', slug: 'modding/systems/interactions' },
+								{ label: 'Projectiles', slug: 'modding/systems/projectiles' },
+								{ label: 'Entity Effects', slug: 'modding/systems/entity-effects' },
+							],
+						},
+						{
+							label: 'NPC & AI',
+							items: [
+								{ label: 'Overview', slug: 'modding/npc-ai' },
+								{ label: 'Blackboard System', slug: 'modding/npc-ai/blackboard' },
+								{ label: 'Decision Makers', slug: 'modding/npc-ai/decision-makers' },
+								{ label: 'Instructions', slug: 'modding/npc-ai/instructions' },
+								{ label: 'Navigation', slug: 'modding/npc-ai/navigation' },
+								{ label: 'Roles', slug: 'modding/npc-ai/roles' },
+								{ label: 'Animations', slug: 'modding/npc-ai/animations' },
+								{ label: 'Spawning', slug: 'modding/spawning' },
+								{ label: 'Flocking', slug: 'modding/flock' },
+							],
+						},
+						{
+							label: 'World Generation',
+							items: [
+								{ label: 'Overview', slug: 'modding/worldgen' },
+								{ label: 'Zones', slug: 'modding/worldgen/zones' },
+								{ label: 'Biomes', slug: 'modding/worldgen/biomes' },
+								{ label: 'Caves', slug: 'modding/worldgen/caves' },
 							],
 						},
 						{
@@ -73,7 +100,10 @@ export default defineConfig({
 								{ label: 'Assets & Registry', slug: 'modding/content/assets' },
 								{ label: 'Inventory & Items', slug: 'modding/content/inventory' },
 								{ label: 'Prefabs', slug: 'modding/content/prefabs' },
-								{ label: 'World Generation', slug: 'modding/content/world-generation' },
+								{ label: 'Terrain Generation', slug: 'modding/content/world-generation' },
+								{ label: 'Fluid System', slug: 'modding/content/fluid' },
+								{ label: 'Time System', slug: 'modding/content/time' },
+								{ label: 'Lighting System', slug: 'modding/content/lighting' },
 							],
 						},
 						{

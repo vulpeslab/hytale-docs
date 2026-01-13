@@ -21,7 +21,10 @@ Hytale's content system allows you to:
 1. **[Assets & Registry](./assets)** - Register custom content and manage assets
 2. **[Inventory & Items](./inventory)** - Player inventories and item management
 3. **[Prefab System](./prefabs)** - Create and place structures
-4. **[World Generation](./world-generation)** - Customize terrain generation
+4. **[Terrain Generation](./world-generation)** - Customize terrain generation
+5. **[Fluid System](./fluid)** - Fluid storage, ticking/flow, and replication
+6. **[Time System](./time)** - Day/night cycle, moon phases, and time packets
+7. **[Lighting System](./lighting)** - Chunk lighting, propagation, and invalidation
 
 ## Architecture
 

@@ -21,13 +21,29 @@ This documentation provides a comprehensive guide to creating mods and plugins f
 <strong style="color: var(--sl-color-white);">🎯 Entity System (ECS)</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Components, entity stats, physics simulation, and player persistence.</p>
 </a>
+<a href="/docs/modding/systems" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<strong style="color: var(--sl-color-white);">⚙️ Gameplay Systems</strong>
+<p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Damage, movement, mounts, interactions, projectiles, and effects.</p>
+</a>
+<a href="/docs/modding/npc-ai" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<strong style="color: var(--sl-color-white);">🤖 NPC & AI</strong>
+<p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">AI behaviors, spawning, flocking, and navigation.</p>
+</a>
+<a href="/docs/modding/worldgen" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<strong style="color: var(--sl-color-white);">🌍 World Generation</strong>
+<p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Zones, biomes, and cave systems.</p>
+</a>
 <a href="/docs/modding/content" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">📦 Content & World</strong>
-<p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Assets, inventory, prefabs, and world generation.</p>
+<p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Assets, inventory, prefabs, fluids, time, and lighting.</p>
 </a>
 <a href="/docs/modding/networking" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">🌐 Networking</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Protocol handling, packet interception, and network utilities.</p>
+</a>
+<a href="/javadoc/" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<strong style="color: var(--sl-color-white);">📚 JavaDoc API Reference</strong>
+<p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Full API documentation for all Hytale server classes, methods, and fields.</p>
 </a>
 </div>
 </div>
