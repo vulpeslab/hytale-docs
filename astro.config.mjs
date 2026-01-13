@@ -13,6 +13,7 @@ export default defineConfig({
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/vulpeslab/hytale-docs' },
 				{ icon: 'discord', label: 'Discord', href: 'https://discord.gg/jshWA2kRmF' },
+				{ icon: 'external', label: 'Javadoc', href: '/javadoc/index.html' },
 			],
 			sidebar: [
 				{

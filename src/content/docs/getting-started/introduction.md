@@ -65,6 +65,9 @@ Learn about server commands, permissions, authentication, and player management.
 ### Advanced Topics
 Server mesh architecture, backup systems, and performance optimization.
 
+### Javadoc Reference
+Browse the complete [API reference](/javadoc/index.html) generated from decompiled server code.
+
 ## Network Protocol
 
 Hytale servers use the **QUIC protocol over UDP**, not TCP. When configuring firewalls and port forwarding, make sure to:

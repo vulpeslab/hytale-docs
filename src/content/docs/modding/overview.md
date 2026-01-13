@@ -5,8 +5,6 @@ sidebar:
   order: 1
 ---
 
-> **Note:** This is unofficial community documentation created through decompilation and analysis. Some details may change in future versions.
-
 This documentation provides a comprehensive guide to creating mods and plugins for the Hytale dedicated server.
 
 ## Documentation Sections
