@@ -1,49 +1,61 @@
-# Starlight Starter Kit: Basics
+# Hytale Server Documentation (Unofficial)
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
-```
-npm create astro@latest -- --template starlight
-```
+Unofficial community documentation for running and modding Hytale dedicated servers. This documentation was created through decompilation and analysis of the HytaleServer.jar.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 📖 Documentation Topics
+
+- **Getting Started** — Installation, project setup, and server configuration
+- **Plugin System** — Plugin architecture, lifecycle, and manifest format
+- **Event System** — Subscribing to and creating custom events
+- **Component System (ECS)** — Entity-Component-System architecture
+- **Commands** — Creating custom server commands
+- **Networking** — Protocol and packet handling
+- **Assets & Registry** — Custom content registration
+- **World Generation** — Terrain and structure generation
+- **And more...**
 
 ## 🚀 Project Structure
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
 ```
 .
-├── public/
+├── public/              # Static assets (favicon, etc.)
 ├── src/
-│   ├── assets/
+│   ├── assets/          # Images and media
 │   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+│   │   └── docs/        # Documentation pages
+│   │       ├── getting-started/
+│   │       └── modding/
+│   └── styles/          # Custom CSS
+├── decompiled/          # Decompiled source reference
+├── astro.config.mjs     # Astro + Starlight config
+└── package.json
 ```
-
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
-
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
-
-Static assets, like favicons, can be placed in the `public/` directory.
 
 ## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+| Command           | Action                                      |
+| :---------------- | :------------------------------------------ |
+| `npm install`     | Install dependencies                        |
+| `npm run dev`     | Start local dev server at `localhost:4321`  |
+| `npm run build`   | Build production site to `./dist/`          |
+| `npm run preview` | Preview build locally before deploying      |
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## 🤝 Contributing
 
-## 👀 Want to learn more?
+Contributions are welcome! If you have additional information about the Hytale server API or find errors in the documentation:
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+1. Fork the repository
+2. Create a feature branch
+3. Add or update documentation in `src/content/docs/`
+4. Submit a pull request
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/vulpeslab/hytale-docs)
+- [Discord Community](https://discord.gg/jshWA2kRmF)
+
+## ⚠️ Disclaimer
+
+This is unofficial community documentation created through reverse engineering. It is not affiliated with or endorsed by Hypixel Studios. Implementation details may change in future Hytale versions.
