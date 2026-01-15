@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Zone System
 description: Understanding and customizing Hytale's zone system for server mods.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Authentication
 description: Configure server authentication modes for Hytale.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Damage System
 description: Understanding the damage system in Hytale, including damage causes, damage data, knockback, and hit detection
 ---

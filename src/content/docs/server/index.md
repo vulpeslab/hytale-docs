@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Server Configuration
 description: Configure your Hytale server settings, worlds, authentication, and performance options.
 sidebar:

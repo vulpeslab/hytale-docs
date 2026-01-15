@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Blackboard System
 description: Shared memory system for NPC AI decision-making
 ---

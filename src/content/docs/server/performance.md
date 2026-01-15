@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Performance Tuning
 description: Optimize your Hytale server performance with memory and JVM settings.
 sidebar:

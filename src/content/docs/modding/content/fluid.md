@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Fluid System
 description: Fluid states, storage in chunks, ticking/flow, FX, and replication to clients.
 sidebar:

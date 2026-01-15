@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Player Management & Persistence
 description: Manage players, store custom data, and handle player events in your Hytale plugins.
 sidebar:

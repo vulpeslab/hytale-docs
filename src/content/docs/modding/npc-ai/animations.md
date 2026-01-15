@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Animations
 description: NPC animation state management
 ---

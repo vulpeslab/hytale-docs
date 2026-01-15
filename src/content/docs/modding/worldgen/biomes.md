@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Biome System
 description: Understanding and customizing Hytale's biome generation system for server mods.
 sidebar:

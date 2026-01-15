@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Lighting System
 description: Chunk lighting manager thread, light storage, propagation rules, and invalidation.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: World Generation Systems
 description: Learn about Hytale's advanced world generation systems for zones, biomes, and caves.
 sidebar:

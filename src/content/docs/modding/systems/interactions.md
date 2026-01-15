@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Interaction System
 description: Player and entity interactions with blocks, entities, and items including cooldowns and interaction chains.
 sidebar:

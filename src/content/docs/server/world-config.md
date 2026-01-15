@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: World Configuration
 description: Configure individual world settings in Hytale.
 sidebar:

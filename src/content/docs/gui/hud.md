@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: HUD System
 description: Managing and customizing the player heads-up display (HUD) in Hytale servers.
 sidebar:

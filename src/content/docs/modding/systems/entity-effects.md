@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Entity Effects
 description: Status effects, buffs, debuffs, and temporary entity modifiers.
 sidebar:

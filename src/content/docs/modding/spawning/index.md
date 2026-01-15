@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Spawning System
 description: NPC spawning, spawn beacons, markers, and spawn control
 ---

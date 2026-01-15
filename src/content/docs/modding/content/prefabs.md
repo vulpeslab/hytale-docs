@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Prefab System
 description: Create, load, save, and place prefab structures in Hytale.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Inventory and Items System
 description: Manage player inventories, item stacks, and create custom items in your Hytale plugins.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Command System
 description: Create custom server commands for your Hytale plugin.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Flock System
 description: Group behavior management for NPCs including flock membership and coordination
 ---

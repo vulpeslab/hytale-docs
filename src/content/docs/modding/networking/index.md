@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Networking
 description: Networking and protocol documentation for Hytale plugin development.
 slug: modding/networking

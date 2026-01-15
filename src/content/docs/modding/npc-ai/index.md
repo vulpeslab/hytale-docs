@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: NPC & AI System
 description: Overview of Hytale's NPC and AI systems for creating intelligent entities
 ---

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: UI Building Tools
 description: Use UICommandBuilder and UIEventBuilder to create dynamic UIs in Hytale.
 sidebar:

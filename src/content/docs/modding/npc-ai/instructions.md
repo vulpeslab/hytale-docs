@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Instructions
 description: Behavioral building blocks for NPC AI including sensors, actions, and motions
 ---

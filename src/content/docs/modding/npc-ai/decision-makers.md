@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Decision Makers
 description: State evaluation and condition-based AI logic
 ---

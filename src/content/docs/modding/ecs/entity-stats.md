@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Entity Stats System
 description: Learn about Hytale's Entity Stats System for managing Health, Stamina, Mana, and custom character attributes.
 sidebar:

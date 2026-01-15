@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Backup Configuration
 description: Configure automatic backups for your Hytale server.
 sidebar:

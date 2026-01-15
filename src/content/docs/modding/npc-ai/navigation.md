@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Navigation & Pathfinding
 description: A* pathfinding and movement systems for NPCs
 ---

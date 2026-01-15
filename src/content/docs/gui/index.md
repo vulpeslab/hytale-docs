@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: GUI System
 description: An overview of Hytale's three GUI subsystems - Windows, Pages, and HUD.
 sidebar:

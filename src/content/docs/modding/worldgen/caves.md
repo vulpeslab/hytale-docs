@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Cave Generation
 description: Understanding and customizing Hytale's cave generation system for server mods.
 sidebar:

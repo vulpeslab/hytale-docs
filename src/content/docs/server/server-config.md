@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Server Settings
 description: Configure main server settings in config.json.
 sidebar:

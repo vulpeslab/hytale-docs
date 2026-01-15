@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Custom Pages System
 description: Create and manage custom GUI pages for player interactions in your Hytale server plugins.
 sidebar:

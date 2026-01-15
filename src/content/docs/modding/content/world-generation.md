@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: World Generation
 description: Understanding and customizing Hytale's procedural world generation system.
 sidebar:

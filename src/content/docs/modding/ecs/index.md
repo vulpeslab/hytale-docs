@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Entity System (ECS)
 description: Learn about Hytale's Entity-Component-System architecture for game objects.
 sidebar:

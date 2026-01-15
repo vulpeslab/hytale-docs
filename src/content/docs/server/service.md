@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Running as a Service
 description: Set up your Hytale server as a system service for automatic startup.
 sidebar:

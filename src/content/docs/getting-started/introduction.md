@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Introduction
 description: Get started with running and configuring your own Hytale server.
 sidebar:

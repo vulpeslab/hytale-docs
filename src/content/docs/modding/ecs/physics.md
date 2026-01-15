@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Physics System
 description: Learn about Hytale's physics simulation system for entities and projectiles.
 sidebar:

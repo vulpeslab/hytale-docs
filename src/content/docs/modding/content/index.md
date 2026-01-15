@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Content & World
 description: Learn about creating custom content, assets, and world generation for Hytale.
 sidebar:

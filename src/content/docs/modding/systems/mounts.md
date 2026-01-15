@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Mounts System
 description: Understanding the mounts system in Hytale, including block mounts, NPC mounts, mount controllers, and minecarts
 ---

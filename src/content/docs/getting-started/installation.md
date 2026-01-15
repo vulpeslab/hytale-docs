@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Installation
 description: Install Java and set up your Hytale server files.
 sidebar:

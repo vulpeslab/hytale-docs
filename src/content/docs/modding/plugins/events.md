@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Event System
 description: Subscribe to and create custom events in your Hytale plugins.
 sidebar:

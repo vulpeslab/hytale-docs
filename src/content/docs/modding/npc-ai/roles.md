@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Roles
 description: High-level NPC behavior definitions and configuration
 ---

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Plugin Development
 description: Learn the fundamentals of creating plugins for the Hytale server.
 sidebar:

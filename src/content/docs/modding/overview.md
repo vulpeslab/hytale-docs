@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Modding Overview
 description: Unofficial community guide to creating mods and plugins for Hytale servers.
 sidebar:

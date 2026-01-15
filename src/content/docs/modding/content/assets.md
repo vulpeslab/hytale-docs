@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Assets & Registry
 description: Register custom content and manage assets in your Hytale plugin.
 sidebar:

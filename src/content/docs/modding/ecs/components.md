@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Component System
 description: Learn about Hytale's component system and how to create custom components.
 sidebar:

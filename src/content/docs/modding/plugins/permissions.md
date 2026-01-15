@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Permissions and Access Control
 description: Implement permission-based access control in your Hytale server plugins.
 sidebar:

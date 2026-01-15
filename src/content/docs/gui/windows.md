@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Windows System
 description: Create and manage server-side GUI windows for player interactions in Hytale.
 sidebar:

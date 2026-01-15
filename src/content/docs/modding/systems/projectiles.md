@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Projectile System
 description: Projectile spawning, physics simulation, trajectory calculation, and collision detection.
 sidebar:

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Plugin System
 description: Learn how to create and structure plugins for the Hytale server.
 sidebar:

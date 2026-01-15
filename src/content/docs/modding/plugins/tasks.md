@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Task Scheduling and Async System
 description: Schedule and manage asynchronous tasks in your Hytale plugins.
 sidebar:

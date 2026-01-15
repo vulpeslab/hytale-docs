@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Movement & Locomotion System
 description: Understanding the movement states and locomotion system in Hytale, including walking, sprinting, crouching, sliding, mantling, and gliding
 ---

@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Examples & Patterns
 description: Code examples and common patterns for Hytale plugin development.
 sidebar:

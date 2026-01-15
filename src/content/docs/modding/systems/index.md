@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Gameplay Systems
 description: Core gameplay systems including damage, movement, interactions, projectiles, and entity effects.
 sidebar:

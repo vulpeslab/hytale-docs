@@ -1,4 +1,5 @@
 ---
+author: UnlimitedBytes
 title: Time System
 description: World game time, day/night cycle mapping, moon phases, and time packets.
 sidebar:
