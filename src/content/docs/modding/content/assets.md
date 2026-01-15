@@ -207,7 +207,7 @@ protected void setup() {
 
 private void onAssetsLoaded(LoadedAssetsEvent<MyAsset> event) {
     for (MyAsset asset : event.getAssets()) {
-        getLogger().info("Loaded asset: " + asset.getId());
+        getLogger().at(Level.INFO).log("Loaded asset: " + asset.getId());
     }
 }
 ```

@@ -76,7 +76,7 @@ protected void setup() {
 }
 
 private void onBoot(BootEvent event) {
-    getLogger().info("Server booted!");
+    getLogger().at(Level.INFO).log("Server booted!");
 }
 ```
 
@@ -368,7 +368,7 @@ getEventRegistry().registerUnhandled(
     CustomEvent.class,
     event -> {
         // This only fires if no keyed handlers matched
-        getLogger().info("Unhandled event: " + event);
+        getLogger().at(Level.INFO).log("Unhandled event: " + event);
     }
 );
 ```

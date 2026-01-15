@@ -311,7 +311,7 @@ getEventRegistry().register(
     event -> {
         UUID playerUuid = event.getPlayerUuid();
         Set<String> added = event.getAddedPermissions();
-        getLogger().info("Player " + playerUuid + " gained: " + added);
+        getLogger().at(Level.INFO).log("Player " + playerUuid + " gained: " + added);
     }
 );
 
@@ -321,7 +321,7 @@ getEventRegistry().register(
     event -> {
         UUID playerUuid = event.getPlayerUuid();
         Set<String> removed = event.getRemovedPermissions();
-        getLogger().info("Player " + playerUuid + " lost: " + removed);
+        getLogger().at(Level.INFO).log("Player " + playerUuid + " lost: " + removed);
     }
 );
 ```
@@ -338,7 +338,7 @@ getEventRegistry().register(
     event -> {
         UUID playerUuid = event.getPlayerUuid();
         String group = event.getGroupName();
-        getLogger().info("Player " + playerUuid + " joined group: " + group);
+        getLogger().at(Level.INFO).log("Player " + playerUuid + " joined group: " + group);
     }
 );
 
@@ -347,7 +347,7 @@ getEventRegistry().register(
     event -> {
         UUID playerUuid = event.getPlayerUuid();
         String group = event.getGroupName();
-        getLogger().info("Player " + playerUuid + " left group: " + group);
+        getLogger().at(Level.INFO).log("Player " + playerUuid + " left group: " + group);
     }
 );
 ```
@@ -364,7 +364,7 @@ getEventRegistry().register(
     event -> {
         String group = event.getGroupName();
         Set<String> added = event.getAddedPermissions();
-        getLogger().info("Group " + group + " gained: " + added);
+        getLogger().at(Level.INFO).log("Group " + group + " gained: " + added);
     }
 );
 
@@ -373,7 +373,7 @@ getEventRegistry().register(
     event -> {
         String group = event.getGroupName();
         Set<String> removed = event.getRemovedPermissions();
-        getLogger().info("Group " + group + " lost: " + removed);
+        getLogger().at(Level.INFO).log("Group " + group + " lost: " + removed);
     }
 );
 ```

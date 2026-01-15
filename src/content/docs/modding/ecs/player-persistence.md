@@ -226,7 +226,7 @@ protected void setup() {
     events.register(PlayerDisconnectEvent.class, event -> {
         PlayerRef playerRef = event.getPlayerRef();
         PacketHandler.DisconnectReason reason = event.getDisconnectReason();
-        getLogger().info(playerRef.getUsername() + " disconnected: " + reason);
+        getLogger().at(Level.INFO).log(playerRef.getUsername() + " disconnected: " + reason);
     });
 }
 ```
@@ -282,10 +282,10 @@ Transform spawnPoint = new Transform(100, 64, 200);
 // Add player to new world (returns CompletableFuture<PlayerRef>)
 targetWorld.addPlayer(playerRef, spawnPoint)
     .thenAccept(resultPlayerRef -> {
-        getLogger().info("Player transferred to " + targetWorld.getName());
+        getLogger().at(Level.INFO).log("Player transferred to " + targetWorld.getName());
     })
     .exceptionally(error -> {
-        getLogger().severe("Transfer failed: " + error.getMessage());
+        getLogger().at(Level.SEVERE).log("Transfer failed: " + error.getMessage());
         return null;
     });
 
