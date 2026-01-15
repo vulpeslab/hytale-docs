@@ -101,7 +101,7 @@ import java.util.concurrent.ScheduledFuture;
 
 // One-time delayed task
 ScheduledFuture<?> delayedTask = HytaleServer.SCHEDULED_EXECUTOR.schedule(
-    () -> getLogger().info("Executed after 5 seconds"),
+    () -> getLogger().at(Level.INFO).log("Executed after 5 seconds"),
     5, TimeUnit.SECONDS
 );
 
@@ -235,7 +235,7 @@ CompletableFuture<World> worldFuture = loadConfig()
 
 // Handle errors
 worldFuture.exceptionally(throwable -> {
-    getLogger().severe("Failed to create world: " + throwable.getMessage());
+    getLogger().at(Level.SEVERE).log("Failed to create world: " + throwable.getMessage());
     return null;
 });
 ```
@@ -290,12 +290,12 @@ protected void start() {
     ScheduledFuture<Void> backupTask = (ScheduledFuture<Void>) HytaleServer.SCHEDULED_EXECUTOR.scheduleWithFixedDelay(
         () -> {
             try {
-                getLogger().info("Starting scheduled backup...");
+                getLogger().at(Level.INFO).log("Starting scheduled backup...");
                 performBackup().thenAccept(v ->
-                    getLogger().info("Backup completed successfully")
+                    getLogger().at(Level.INFO).log("Backup completed successfully")
                 );
             } catch (Exception e) {
-                getLogger().severe("Backup failed: " + e.getMessage());
+                getLogger().at(Level.SEVERE).log("Backup failed: " + e.getMessage());
             }
         },
         frequencyMinutes,
@@ -408,7 +408,7 @@ The `TaskRegistry` automatically cancels all registered tasks when your plugin i
 3. **Handle exceptions** - Always handle exceptions in async code to prevent silent failures:
    ```java
    future.exceptionally(throwable -> {
-       getLogger().severe("Task failed: " + throwable.getMessage());
+       getLogger().at(Level.SEVERE).log("Task failed: " + throwable.getMessage());
        return null;
    });
    ```
@@ -424,7 +424,7 @@ The `TaskRegistry` automatically cancels all registered tasks when your plugin i
    future.orTimeout(30, TimeUnit.SECONDS)
        .exceptionally(e -> {
            if (e instanceof TimeoutException) {
-               getLogger().warning("Operation timed out");
+               getLogger().at(Level.WARNING).log("Operation timed out");
            }
            return null;
        });

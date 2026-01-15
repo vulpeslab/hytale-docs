@@ -88,17 +88,17 @@ public class MyPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         instance = this;
-        getLogger().info("Plugin setup complete!");
+        getLogger().at(Level.INFO).log("Plugin setup complete!");
     }
 
     @Override
     protected void start() {
-        getLogger().info("Plugin started!");
+        getLogger().at(Level.INFO).log("Plugin started!");
     }
 
     @Override
     protected void shutdown() {
-        getLogger().info("Plugin shutting down!");
+        getLogger().at(Level.INFO).log("Plugin shutting down!");
     }
 }
 ```
@@ -122,7 +122,7 @@ import com.hypixel.hytale.server.core.event.events.BootEvent;
 
 // In setup()
 getEventRegistry().register(BootEvent.class, event -> {
-    getLogger().info("Server booted!");
+    getLogger().at(Level.INFO).log("Server booted!");
 });
 ```
 
@@ -159,7 +159,7 @@ protected void setup() {
     getTaskRegistry().registerTask(myFuture);
 
     // Logging
-    getLogger().info("Setup complete!");
+    getLogger().at(Level.INFO).log("Setup complete!");
 }
 ```
 

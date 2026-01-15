@@ -46,17 +46,17 @@ public class MyPlugin extends JavaPlugin {
         // Register events
         registerEvents();
 
-        getLogger().info("MyPlugin setup complete!");
+        getLogger().at(Level.INFO).log("MyPlugin setup complete!");
     }
 
     @Override
     protected void start() {
-        getLogger().info("MyPlugin started!");
+        getLogger().at(Level.INFO).log("MyPlugin started!");
     }
 
     @Override
     protected void shutdown() {
-        getLogger().info("MyPlugin shutting down!");
+        getLogger().at(Level.INFO).log("MyPlugin shutting down!");
     }
 
     private void registerComponents() {
@@ -340,7 +340,7 @@ protected void setup() {
     // Register command collection
     getCommandRegistry().registerCommand(new HealthCommand(healthType));
 
-    getLogger().info("Health system registered!");
+    getLogger().at(Level.INFO).log("Health system registered!");
 }
 ```
 
@@ -405,7 +405,7 @@ protected void setup() {
     getEventRegistry().register(
         PlayerLevelUpEvent.class,
         event -> {
-            getLogger().info("Player leveled up: " +
+            getLogger().at(Level.INFO).log("Player leveled up: " +
                 event.getOldLevel() + " -> " + event.getNewLevel());
 
             // Cancel if level too high
@@ -598,7 +598,7 @@ public class MyPlugin extends JavaPlugin {
         // Access config after loading
         MyPluginConfig cfg = config.get();
         if (cfg.isEnabled()) {
-            getLogger().info("Plugin enabled with max players: " + cfg.getMaxPlayers());
+            getLogger().at(Level.INFO).log("Plugin enabled with max players: " + cfg.getMaxPlayers());
         }
     }
 }
@@ -735,7 +735,7 @@ jar {
 Use the plugin logger for debug output:
 
 ```java
-getLogger().info("Plugin started");
+getLogger().at(Level.INFO).log("Plugin started");
 getLogger().at(Level.WARNING).log("Something unexpected: %s", value);
 getLogger().at(Level.SEVERE).withCause(exception).log("Failed to process: %s", item);
 ```
