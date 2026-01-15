@@ -290,4 +290,4 @@ Difficulty scales with distance:
 - Learn about the [Biome System](./biomes) for terrain characteristics
 - Explore [Cave Generation](./caves) for underground structures
 - Refer to [World Generation](../content/world-generation) for general concepts
-- Set up [Live Worldgen](./live) to put your knowledge into practice
+- Set up [Live Worldgen](./live) editing to put your knowledge into practice
