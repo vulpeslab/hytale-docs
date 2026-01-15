@@ -502,6 +502,185 @@ Once registered, the interaction can be used in item definitions:
 }
 ```
 
+## Godmode Plugin Example
+
+This example demonstrates a complete godmode feature using the damage system, permissions, and commands.
+
+### Tracking Player State
+
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+public class GodmodePlugin extends JavaPlugin {
+
+    private static GodmodePlugin instance;
+
+    // Track players with godmode enabled (by username)
+    private final Set<String> playersWithGodmode = new HashSet<>();
+
+    public static GodmodePlugin get() {
+        return instance;
+    }
+
+    public boolean hasGodmode(String username) {
+        return playersWithGodmode.contains(username);
+    }
+
+    public boolean toggleGodmode(String username) {
+        if (playersWithGodmode.contains(username)) {
+            playersWithGodmode.remove(username);
+            return false;  // Godmode disabled
+        } else {
+            playersWithGodmode.add(username);
+            return true;   // Godmode enabled
+        }
+    }
+
+    // ... constructor and lifecycle methods
+}
+```
+
+### Godmode Command with Permission
+
+```java
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import javax.annotation.Nonnull;
+
+class GodmodeCommand extends AbstractPlayerCommand {
+
+    GodmodeCommand() {
+        super("godmode", "myplugin.commands.godmode.desc");
+    }
+
+    @Override
+    protected void execute(@Nonnull CommandContext context,
+                           @Nonnull Store<EntityStore> store,
+                           @Nonnull Ref<EntityStore> ref,
+                           @Nonnull PlayerRef playerRef,
+                           @Nonnull World world) {
+
+        // Manual permission check using context.sender().hasPermission()
+        if (!context.sender().hasPermission("myplugin.godmode")) {
+            context.sendMessage(Message.translation("You don't have permission to use godmode!"));
+            return;
+        }
+
+        String username = playerRef.getUsername();
+        boolean enabled = GodmodePlugin.get().toggleGodmode(username);
+
+        if (enabled) {
+            context.sendMessage(Message.translation("Godmode enabled! You are now invincible."));
+        } else {
+            context.sendMessage(Message.translation("Godmode disabled! You can now take damage."));
+        }
+    }
+}
+```
+
+### Damage Prevention System
+
+The key to preventing damage is registering in the **Filter Damage Group** (before damage is applied to health):
+
+```java
+import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
+import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
+import com.hypixel.hytale.server.core.modules.entity.damage.DamageModule;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.component.ArchetypeChunk;
+import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.SystemGroup;
+import com.hypixel.hytale.component.query.Query;
+import javax.annotation.Nonnull;
+
+class GodmodeDamageListener extends DamageEventSystem {
+
+    @Override
+    public SystemGroup<EntityStore> getGroup() {
+        // CRITICAL: Register in the Filter Damage Group to run BEFORE damage is applied
+        // Default is Inspect group (after damage), which cannot prevent damage
+        return DamageModule.get().getFilterDamageGroup();
+    }
+
+    @Override
+    public Query<EntityStore> getQuery() {
+        // Return Query.any() to handle all entities that receive damage
+        return Query.any();
+    }
+
+    @Override
+    public void handle(int index, @Nonnull ArchetypeChunk<EntityStore> chunk,
+                       @Nonnull Store<EntityStore> store,
+                       @Nonnull CommandBuffer<EntityStore> commandBuffer,
+                       @Nonnull Damage damage) {
+        // Skip if already cancelled by another system
+        if (damage.isCancelled()) {
+            return;
+        }
+
+        // Get reference to the damaged entity
+        Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
+
+        // Check if target is a player
+        Player player = store.getComponent(targetRef, Player.getComponentType());
+        if (player == null) {
+            return;
+        }
+
+        String username = player.getPlayerRef().getUsername();
+
+        // Check if player has godmode enabled
+        if (GodmodePlugin.get().hasGodmode(username)) {
+            // Cancel all damage for godmode players
+            damage.setCancelled(true);
+            player.sendMessage(Message.translation(
+                String.format("Godmode: Blocked %.1f damage!", damage.getAmount())));
+        }
+    }
+}
+```
+
+### Registration
+
+```java
+@Override
+protected void setup() {
+    instance = this;
+
+    // Register commands
+    getCommandRegistry().registerCommand(new GodmodeCommand());
+
+    // Register damage listener system
+    getEntityStoreRegistry().registerSystem(new GodmodeDamageListener());
+
+    getLogger().at(Level.INFO).log("Godmode plugin registered!");
+}
+```
+
+### Key Points
+
+1. **Filter Damage Group**: Override `getGroup()` to return `DamageModule.get().getFilterDamageGroup()`. Without this, your system runs in the Inspect group (after damage is applied) and `setCancelled(true)` has no effect on health.
+
+2. **Query.any()**: Return `Query.any()` from `getQuery()` to process all entities. Returning `null` causes a NullPointerException.
+
+3. **Permission Check**: Use `context.sender().hasPermission("permission.node")` for manual permission checks inside commands.
+
+4. **Damage Groups**:
+   - `getGatherDamageGroup()` - Where damage events are created
+   - `getFilterDamageGroup()` - Where damage can be modified/cancelled before affecting health
+   - `getInspectDamageGroup()` - Where effects are applied after damage (default)
+
 ## Common Patterns
 
 ### Singleton Access Pattern

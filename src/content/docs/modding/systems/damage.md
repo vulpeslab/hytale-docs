@@ -274,17 +274,63 @@ Create a system that extends `DamageEventSystem`:
 
 ```java
 public class MyDamageListener extends DamageEventSystem {
+
     @Override
-    public void onEvent(Damage damage, Ref<EntityStore> targetRef, 
-                       Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+    public Query<EntityStore> getQuery() {
+        // Return Query.any() to handle all entities, or a specific query
+        return Query.any();
+    }
+
+    @Override
+    public void handle(int index, ArchetypeChunk<EntityStore> chunk,
+                       Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                       Damage damage) {
+        // Get reference to the damaged entity
+        Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
+
         // Modify damage
         damage.setAmount(damage.getAmount() * 0.5f);
-        
+
         // Or cancel it
         damage.setCancelled(true);
     }
 }
 ```
+
+### Registering in a Specific Damage Group
+
+By default, `DamageEventSystem` runs in the Inspect Damage Group (after damage is applied). To actually cancel or modify damage before it affects health, you must register in the **Filter Damage Group**:
+
+```java
+public class MyDamageFilter extends DamageEventSystem {
+
+    @Override
+    public SystemGroup<EntityStore> getGroup() {
+        // Register in the Filter Damage Group to run BEFORE damage is applied
+        return DamageModule.get().getFilterDamageGroup();
+    }
+
+    @Override
+    public Query<EntityStore> getQuery() {
+        return Query.any();
+    }
+
+    @Override
+    public void handle(int index, ArchetypeChunk<EntityStore> chunk,
+                       Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer,
+                       Damage damage) {
+        Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
+
+        // Cancel damage - this WILL prevent health loss when in Filter group
+        damage.setCancelled(true);
+    }
+}
+```
+
+**Available damage groups via `DamageModule.get()`:**
+- `getGatherDamageGroup()` - Where damage events are created
+- `getFilterDamageGroup()` - Where damage can be modified/cancelled before affecting health
+- `getInspectDamageGroup()` - Where effects are applied after damage (default for DamageEventSystem)
 
 ### Adding Knockback to Damage
 
