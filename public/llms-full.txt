@@ -1,0 +1,1529 @@
+# Hytale Server Documentation - Full Content
+
+> Unofficial community documentation for running, configuring, and modding Hytale dedicated servers.
+
+This document contains the complete documentation for Hytale server administration and plugin development. It is optimized for LLM context consumption.
+
+---
+
+# SECTION 1: GETTING STARTED
+
+## 1.1 Introduction
+
+Hytale is currently in early access. This documentation is unofficial and created through community decompilation and analysis.
+
+### What is a Hytale Server?
+
+A Hytale dedicated server allows you to host multiplayer games. With your own server, you can:
+- Host private games for friends and communities
+- Customize game rules and world settings
+- Configure multiple worlds with different game modes
+- Integrate with server mesh architecture for scalable deployments
+- Implement custom server-side modifications
+
+### System Requirements
+
+- **Memory**: At least 4GB of RAM (8GB+ recommended for larger servers)
+- **Java**: Java 25 or higher (Adoptium/Temurin recommended)
+- **Architecture**: x64 or arm64 supported
+- **Network**: UDP port access (default port 5520) - uses QUIC protocol
+- **Storage**: Sufficient disk space for world data, backups, and assets
+
+### Quick Start
+
+1. Install Java 25 from Adoptium
+2. Copy the Server folder and assets from your Hytale installation
+3. Launch with: `java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets`
+4. Connect at `localhost:5520`
+
+### Network Protocol
+
+Hytale servers use the QUIC protocol over UDP, not TCP. Configure firewalls for UDP port 5520.
+
+---
+
+## 1.2 Installation
+
+### Installing Java 25
+
+**Windows:**
+1. Download JDK installer from Adoptium
+2. Select Temurin 25 and Windows x64
+3. Run installer, ensure "Add to PATH" is selected
+
+**macOS (Homebrew):**
+```bash
+brew install --cask temurin@25
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
+echo "deb https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+sudo apt update
+sudo apt install temurin-25-jdk
+```
+
+**Linux (Fedora/RHEL):**
+```bash
+sudo dnf install java-25-openjdk
+```
+
+**Verify:**
+```bash
+java -version
+```
+
+### Getting Server Files
+
+Copy the Server folder from your Hytale installation:
+```
+my-server/
+├── HytaleServer.jar
+└── (config files will be generated on first run)
+../HytaleAssets/   # Default location for assets
+```
+
+### Launching the Server
+
+Basic launch:
+```bash
+java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
+```
+
+### Command-Line Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `--assets <Path>` | Path to assets directory or .zip file (default: ../HytaleAssets) |
+| `-b, --bind <Address>` | Address and port (default: 0.0.0.0:5520) |
+| `-t, --transport <Type>` | Transport type: TCP or QUIC (default: QUIC) |
+| `--auth-mode <Mode>` | AUTHENTICATED, OFFLINE, or INSECURE |
+| `--universe <Path>` | Path to universe directory (default: universe) |
+| `--mods <Paths>` | Comma-separated mod directories |
+| `--world-gen <Path>` | World generation directory |
+| `--backup` | Enable automatic backups |
+| `--backup-dir <Path>` | Backup directory |
+| `--backup-frequency <Minutes>` | Backup interval (default: 30) |
+| `--backup-max-count <Count>` | Maximum backups (default: 5) |
+| `--boot-command <Commands>` | Commands to run on start |
+| `--validate-assets` | Exit if assets invalid |
+| `--validate-prefabs <Options>` | Exit if prefabs invalid |
+| `--validate-world-gen` | Exit if world gen invalid |
+| `--shutdown-after-validate` | Shutdown after validation |
+| `--generate-schema` | Generate schema and exit |
+| `--log <Logger:Level>` | Set logger levels |
+| `--bare` | Run without loading worlds |
+| `--help` | Print help |
+| `--version` | Print version |
+
+**Advanced Options:**
+| Argument | Description |
+|----------|-------------|
+| `--prefab-cache <Path>` | Prefab cache directory |
+| `--disable-cpb-build` | Disable compact prefab buffers |
+| `--disable-file-watcher` | Disable file watching |
+| `--disable-sentry` | Disable Sentry reporting |
+| `--force-network-flush <Boolean>` | Force network flush (default: true) |
+| `--allow-op` | Allow self-op command |
+
+**Early Plugin Options:**
+| Argument | Description |
+|----------|-------------|
+| `--accept-early-plugins` | Acknowledge early plugins risk |
+| `--early-plugins <Paths>` | Early plugin directories |
+
+**Singleplayer Options:**
+| Argument | Description |
+|----------|-------------|
+| `--singleplayer` | Singleplayer mode |
+| `--owner-name <Name>` | Owner player name |
+| `--owner-uuid <UUID>` | Owner player UUID |
+| `--client-pid <PID>` | Client process ID |
+
+### Firewall Configuration
+
+**Windows:**
+```powershell
+netsh advfirewall firewall add rule name="Hytale Server" dir=in action=allow protocol=UDP localport=5520
+```
+
+**Linux (UFW):**
+```bash
+sudo ufw allow 5520/udp
+```
+
+**Linux (firewalld):**
+```bash
+sudo firewall-cmd --permanent --add-port=5520/udp
+sudo firewall-cmd --reload
+```
+
+### Start Scripts
+
+**Windows (start.bat):**
+```batch
+@echo off
+java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
+pause
+```
+
+**Linux/macOS (start.sh):**
+```bash
+#!/bin/bash
+java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
+```
+
+---
+
+# SECTION 2: SERVER CONFIGURATION
+
+## 2.1 Server Settings (config.json)
+
+The main config.json file controls server-wide settings, managed by `HytaleServerConfig`.
+
+```json
+{
+  "ServerName": "Hytale Server",
+  "MOTD": "",
+  "Password": "",
+  "MaxPlayers": 100,
+  "MaxViewRadius": 32,
+  "LocalCompressionEnabled": false,
+  "DisplayTmpTagsInStrings": false,
+  "Defaults": {
+    "World": "default",
+    "GameMode": "Adventure"
+  },
+  "ConnectionTimeouts": {
+    "InitialTimeout": "PT10S",
+    "AuthTimeout": "PT30S",
+    "PlayTimeout": "PT1M",
+    "JoinTimeouts": {}
+  },
+  "RateLimit": {
+    "Enabled": true,
+    "PacketsPerSecond": 2000,
+    "BurstCapacity": 500
+  },
+  "Modules": {},
+  "LogLevels": {},
+  "Mods": {},
+  "PlayerStorage": {},
+  "AuthCredentialStore": null
+}
+```
+
+### Server Identity
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `ServerName` | string | "Hytale Server" | Display name |
+| `MOTD` | string | "" | Message of the day |
+| `Password` | string | "" | Server password |
+
+### Player Limits
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `MaxPlayers` | integer | 100 | Maximum concurrent players |
+| `MaxViewRadius` | integer | 32 | Maximum view radius in chunks |
+
+### Default Settings
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `Defaults.World` | string | "default" | Default spawn world |
+| `Defaults.GameMode` | GameMode | Adventure | Default game mode |
+
+**Game Modes:**
+- `Adventure` (ID: 0) - Default mode
+- `Creative` (ID: 1) - Creative mode
+
+### Connection Timeouts (ISO-8601 Duration)
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `InitialTimeout` | Duration | PT10S | Initial connection timeout |
+| `AuthTimeout` | Duration | PT30S | Authentication timeout |
+| `PlayTimeout` | Duration | PT1M | Play session timeout |
+
+### Rate Limiting
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `RateLimit.Enabled` | Boolean | true | Enable rate limiting |
+| `RateLimit.PacketsPerSecond` | Integer | 2000 | Max packets per second |
+| `RateLimit.BurstCapacity` | Integer | 500 | Burst capacity |
+
+### Log Levels
+
+```json
+{
+  "LogLevels": {
+    "com.hypixel.hytale.server": "INFO",
+    "com.hypixel.hytale.server.network": "WARNING"
+  }
+}
+```
+
+Values: SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL, OFF
+
+### Mods Configuration
+
+```json
+{
+  "Mods": {
+    "modname:modid": {
+      "Enabled": true,
+      "RequiredVersion": ">=1.0.0"
+    }
+  }
+}
+```
+
+### Player Storage Providers
+
+**Hytale (Default):**
+```json
+{ "PlayerStorage": { "Type": "Hytale" } }
+```
+
+**Disk (Custom path):**
+```json
+{ "PlayerStorage": { "Type": "Disk", "Path": "/custom/path" } }
+```
+
+---
+
+## 2.2 Authentication
+
+### Authentication Modes
+
+**Authenticated (Default):**
+```bash
+java -jar HytaleServer.jar --auth-mode authenticated
+```
+- Account verification through Hytale servers
+- Consistent UUIDs tied to accounts
+- Required for public servers
+
+**Offline:**
+```bash
+java -jar HytaleServer.jar --auth-mode offline
+```
+- No verification, for private/LAN only
+- UUIDs generated from username
+- Anyone can join with any username
+
+**Insecure:**
+```bash
+java -jar HytaleServer.jar --auth-mode insecure
+```
+- All security disabled
+- Development only, never use in production
+
+### Server Operator Authentication
+
+**Device Flow (Headless):**
+```
+/auth login device
+```
+- Initiates OAuth 2.0 device flow
+- Opens verification URL in browser
+- Enter code to authenticate
+
+**Browser Flow (Local):**
+```
+/auth login browser
+```
+
+**Profile Selection:**
+```
+/auth select <number>
+```
+
+---
+
+## 2.3 Performance Tuning
+
+### Memory Allocation by Player Count
+
+| Players | Recommended RAM |
+|---------|-----------------|
+| 1-10 | 4GB |
+| 10-20 | 6GB |
+| 20-50 | 8GB |
+| 50+ | 12GB+ |
+
+### Memory Configuration
+
+```bash
+java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
+```
+
+Set `-Xms` and `-Xmx` to same value to prevent heap resizing lag spikes.
+
+### G1GC Garbage Collection (Recommended)
+
+```bash
+java -Xms4G -Xmx4G \
+  -XX:+UseG1GC \
+  -XX:+ParallelRefProcEnabled \
+  -XX:MaxGCPauseMillis=200 \
+  -jar HytaleServer.jar --assets ../HytaleAssets
+```
+
+### Advanced G1GC Tuning
+
+```bash
+java -Xms8G -Xmx8G \
+  -XX:+UseG1GC \
+  -XX:+ParallelRefProcEnabled \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+DisableExplicitGC \
+  -XX:G1NewSizePercent=30 \
+  -XX:G1MaxNewSizePercent=40 \
+  -XX:G1HeapRegionSize=8M \
+  -XX:G1ReservePercent=20 \
+  -XX:G1HeapWastePercent=5 \
+  -XX:G1MixedGCCountTarget=4 \
+  -XX:InitiatingHeapOccupancyPercent=15 \
+  -XX:G1MixedGCLiveThresholdPercent=90 \
+  -XX:G1RSetUpdatingPauseTimePercent=5 \
+  -XX:SurvivorRatio=32 \
+  -XX:+PerfDisableSharedMem \
+  -XX:MaxTenuringThreshold=1 \
+  -jar HytaleServer.jar --assets ../HytaleAssets
+```
+
+---
+
+## 2.4 Backups
+
+### Command Line Options
+
+```bash
+java -Xms4G -Xmx4G -jar HytaleServer.jar \
+  --assets ../HytaleAssets \
+  --backup \
+  --backup-dir ./backups \
+  --backup-frequency 30 \
+  --backup-max-count 5
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--backup` | Enable backups | disabled |
+| `--backup-dir <path>` | Backup directory | required |
+| `--backup-frequency <minutes>` | Interval (min: 1) | 30 |
+| `--backup-max-count <count>` | Max backups | 5 |
+
+### Backup Format
+
+- Format: ZIP archives
+- Filename: `yyyy-MM-dd_HH-mm-ss.zip`
+- Contents: Entire `universe/` directory
+- Automatic archiving: Every 12 hours, oldest backup moved to `archive/`
+
+---
+
+# SECTION 3: MODDING & PLUGIN DEVELOPMENT
+
+## 3.1 Modding Overview
+
+### Server Architecture
+
+```
+HytaleServer
+├── PluginManager      - Plugin loading, lifecycle, hot-reloading
+├── EventBus           - Event dispatch system
+├── CommandManager     - Command registration and execution
+├── Universe           - World, entity, and player management
+├── ServerManager      - Network I/O (QUIC/UDP)
+└── AssetModule        - Asset pack loading
+```
+
+### Plugin Load Order
+
+1. Core plugins - Built-in server functionality
+2. Builtin directory - `builtin/` next to server JAR
+3. Classpath - Plugins bundled with server
+4. Mods directory - `mods/` (user plugins)
+5. Additional directories - Via `--mods-directories`
+
+### Key Concepts
+
+- **Plugins**: Java JARs in `mods/` with `manifest.json`
+- **Components (ECS)**: Entity-Component-System architecture
+- **Events**: Sync/async with priority ordering
+- **Registries**: Type-safe content registration
+
+---
+
+## 3.2 Plugin System
+
+### Manifest File (manifest.json)
+
+```json
+{
+  "Group": "com.example",
+  "Name": "MyPlugin",
+  "Version": "1.0.0",
+  "Description": "A sample plugin",
+  "Main": "com.example.MyPlugin",
+  "Authors": [
+    { "Name": "Your Name", "Email": "you@example.com", "Url": "https://example.com" }
+  ],
+  "Website": "https://example.com/myplugin",
+  "ServerVersion": ">=0.0.1",
+  "Dependencies": { "Hytale:SomePlugin": ">=1.0.0" },
+  "OptionalDependencies": { "Hytale:OptionalPlugin": "*" },
+  "LoadBefore": { "Hytale:AnotherPlugin": "*" },
+  "DisabledByDefault": false,
+  "IncludesAssetPack": false
+}
+```
+
+Plugin identifier format: `Group:Name` (e.g., `com.example:MyPlugin`)
+
+### Main Plugin Class
+
+```java
+package com.example;
+
+import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import javax.annotation.Nonnull;
+
+public class MyPlugin extends JavaPlugin {
+    private static MyPlugin instance;
+
+    public MyPlugin(@Nonnull JavaPluginInit init) {
+        super(init);
+    }
+
+    public static MyPlugin get() { return instance; }
+
+    @Override
+    protected void setup() {
+        instance = this;
+        getLogger().at(Level.INFO).log("Plugin setup complete!");
+    }
+
+    @Override
+    protected void start() {
+        getLogger().at(Level.INFO).log("Plugin started!");
+    }
+
+    @Override
+    protected void shutdown() {
+        getLogger().at(Level.INFO).log("Plugin shutting down!");
+    }
+}
+```
+
+### Lifecycle Methods
+
+| Method | When Called | Purpose |
+|--------|-------------|---------|
+| `setup()` | Server initialization | Register components, commands, events |
+| `start()` | After all plugins setup | Start tasks, initialize state |
+| `shutdown()` | Server stopping | Clean up, save data |
+
+### Plugin Registries
+
+| Registry | Getter Method | Purpose |
+|----------|---------------|---------|
+| `CommandRegistry` | `getCommandRegistry()` | Custom commands |
+| `EventRegistry` | `getEventRegistry()` | Event listeners |
+| `TaskRegistry` | `getTaskRegistry()` | Async tasks |
+| `EntityRegistry` | `getEntityRegistry()` | Custom entities |
+| `BlockStateRegistry` | `getBlockStateRegistry()` | Block states |
+| `AssetRegistry` | `getAssetRegistry()` | Custom assets |
+| `EntityStoreRegistry` | `getEntityStoreRegistry()` | Entity components |
+| `ChunkStoreRegistry` | `getChunkStoreRegistry()` | Chunk components |
+
+---
+
+## 3.3 Event System
+
+### Event Types
+
+**Synchronous (IEvent):** Execute immediately in priority order
+**Asynchronous (IAsyncEvent):** Execute with CompletableFuture chaining
+**Cancellable (ICancellable):** Can prevent default behavior
+
+### Event Priorities
+
+| Priority | Value | Description |
+|----------|-------|-------------|
+| `FIRST` | -21844 | Execute first |
+| `EARLY` | -10922 | Execute early |
+| `NORMAL` | 0 | Default |
+| `LATE` | 10922 | Execute late |
+| `LAST` | 21844 | Execute last |
+
+### Basic Registration
+
+```java
+@Override
+protected void setup() {
+    getEventRegistry().register(BootEvent.class, this::onBoot);
+}
+
+private void onBoot(BootEvent event) {
+    getLogger().at(Level.INFO).log("Server booted!");
+}
+```
+
+### With Priority
+
+```java
+getEventRegistry().register(EventPriority.EARLY, PlayerJoinEvent.class, event -> {
+    // Handle early
+});
+```
+
+### Global Registration
+
+```java
+getEventRegistry().registerGlobal(EntitySpawnEvent.class, event -> {
+    // Handles all entity spawns in all worlds
+});
+```
+
+### Creating Custom Events
+
+```java
+public class PlayerLevelUpEvent implements IEvent<Void>, ICancellable {
+    private final PlayerRef player;
+    private final int oldLevel;
+    private final int newLevel;
+    private boolean cancelled = false;
+
+    public PlayerLevelUpEvent(PlayerRef player, int oldLevel, int newLevel) {
+        this.player = player;
+        this.oldLevel = oldLevel;
+        this.newLevel = newLevel;
+    }
+
+    public PlayerRef getPlayer() { return player; }
+    public int getOldLevel() { return oldLevel; }
+    public int getNewLevel() { return newLevel; }
+
+    @Override
+    public boolean isCancelled() { return cancelled; }
+
+    @Override
+    public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
+}
+```
+
+### Dispatching Events
+
+```java
+IEventDispatcher<PlayerLevelUpEvent, PlayerLevelUpEvent> dispatcher =
+    HytaleServer.get().getEventBus().dispatchFor(PlayerLevelUpEvent.class);
+
+if (dispatcher.hasListener()) {
+    PlayerLevelUpEvent event = new PlayerLevelUpEvent(player, oldLevel, newLevel);
+    dispatcher.dispatch(event);
+    if (event.isCancelled()) return;
+}
+```
+
+### Built-in Events
+
+**Server Lifecycle:**
+- `BootEvent` - Server fully booted
+- `ShutdownEvent` - Server shutting down
+- `PluginSetupEvent` - Plugin setup completed
+
+**World Events:**
+- `AddWorldEvent` (Cancellable) - World added
+- `RemoveWorldEvent` (Cancellable) - World removed
+- `AllWorldsLoadedEvent` - All worlds loaded
+- `StartWorldEvent` - World started
+
+**Player Events:**
+- `PlayerConnectEvent` - Player connecting
+- `PlayerDisconnectEvent` - Player disconnected
+- `PlayerChatEvent` (Async, Cancellable) - Chat message
+- `AddPlayerToWorldEvent` - Player added to world
+- `DrainPlayerFromWorldEvent` - Player removed from world
+- `PlayerReadyEvent` - Player ready
+
+**Block Events (ECS, Cancellable):**
+- `PlaceBlockEvent` - Block placed
+- `BreakBlockEvent` - Block broken
+- `DamageBlockEvent` - Block damaged
+- `UseBlockEvent` - Block used
+
+---
+
+## 3.4 Command System
+
+### Simple Command
+
+```java
+import com.hypixel.hytale.server.core.command.system.AbstractCommand;
+import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.Message;
+import java.util.concurrent.CompletableFuture;
+
+public class HelloCommand extends AbstractCommand {
+    public HelloCommand() {
+        super("hello", "Says hello");
+    }
+
+    @Override
+    protected CompletableFuture<Void> execute(CommandContext context) {
+        context.sender().sendMessage(Message.raw("Hello, " + context.sender().getDisplayName() + "!"));
+        return CompletableFuture.completedFuture(null);
+    }
+}
+```
+
+### Required Arguments
+
+```java
+import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
+import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
+
+public class GiveCommand extends AbstractCommand {
+    private final RequiredArg<String> playerArg;
+    private final RequiredArg<String> itemArg;
+    private final RequiredArg<Integer> amountArg;
+
+    public GiveCommand() {
+        super("give", "Give items");
+        playerArg = withRequiredArg("player", "Target player", ArgTypes.STRING);
+        itemArg = withRequiredArg("item", "Item ID", ArgTypes.STRING);
+        amountArg = withRequiredArg("amount", "Quantity", ArgTypes.INTEGER);
+    }
+
+    @Override
+    protected CompletableFuture<Void> execute(CommandContext context) {
+        String player = playerArg.get(context);
+        String item = itemArg.get(context);
+        int amount = amountArg.get(context);
+        // Implementation
+        return CompletableFuture.completedFuture(null);
+    }
+}
+```
+
+### Optional Arguments (--name value)
+
+```java
+import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
+
+worldArg = withOptionalArg("world", "Target world", ArgTypes.STRING);
+
+// In execute:
+String world = worldArg.provided(context) ? worldArg.get(context) : "default";
+```
+
+### Flag Arguments (--flag)
+
+```java
+import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
+
+verboseFlag = withFlagArg("verbose", "Enable verbose output");
+
+// In execute:
+boolean verbose = context.has(verboseFlag);
+```
+
+### SubCommands
+
+```java
+import com.hypixel.hytale.server.core.command.system.basecommands.AbstractCommandCollection;
+
+public class AdminCommands extends AbstractCommandCollection {
+    public AdminCommands() {
+        super("admin", "Admin commands");
+        addSubCommand(new KickSubCommand());
+        addSubCommand(new BanSubCommand());
+    }
+}
+// Usage: /admin kick PlayerName
+```
+
+### Permissions
+
+Auto-generated: `{group}.{name}.command.{commandname}`
+
+```java
+// Custom permission
+@Override
+protected String generatePermissionNode() {
+    return "custom.permission.node";
+}
+
+// Disable permission check
+@Override
+protected boolean canGeneratePermission() {
+    return false;
+}
+
+// Manual check
+if (!context.sender().hasPermission("special.action")) {
+    context.sender().sendMessage(Message.raw("No permission!"));
+    return CompletableFuture.completedFuture(null);
+}
+```
+
+### Aliases
+
+```java
+public TeleportCommand() {
+    super("teleport", "Teleport");
+    addAliases("tp", "warp", "goto");
+}
+```
+
+---
+
+## 3.5 Permissions System
+
+### Permission Syntax
+
+Dot-separated hierarchical format: `namespace.category.action`
+
+Examples:
+- `hytale.command.gamemode.self`
+- `hytale.command.gamemode.other`
+- `myplugin.admin.kick`
+
+### Wildcards
+
+| Pattern | Description |
+|---------|-------------|
+| `*` | All permissions |
+| `hytale.*` | All hytale namespace |
+| `hytale.command.*` | All command permissions |
+
+### Negation
+
+Prefix with `-` to deny: `-hytale.command.kick`
+
+### PermissionHolder Interface
+
+```java
+public interface PermissionHolder {
+    boolean hasPermission(@Nonnull String id);
+    boolean hasPermission(@Nonnull String id, boolean defaultValue);
+}
+```
+
+### PermissionProvider Interface
+
+```java
+public interface PermissionProvider {
+    String getName();
+    void addUserPermissions(UUID uuid, Set<String> permissions);
+    void removeUserPermissions(UUID uuid, Set<String> permissions);
+    Set<String> getUserPermissions(UUID uuid);
+    void addGroupPermissions(String group, Set<String> permissions);
+    void removeGroupPermissions(String group, Set<String> permissions);
+    Set<String> getGroupPermissions(String group);
+    void addUserToGroup(UUID uuid, String group);
+    void removeUserFromGroup(UUID uuid, String group);
+    Set<String> getGroupsForUser(UUID uuid);
+}
+```
+
+---
+
+## 3.6 Entity-Component-System (ECS)
+
+### Architecture
+
+```
+Store<ECS_TYPE>
+├── ComponentRegistry<ECS_TYPE>    - Type registration
+├── Archetype[]                    - Component type combinations
+│   └── ArchetypeChunk[]           - Entity storage
+│       ├── Ref<ECS_TYPE>[]        - Entity references
+│       └── Component<ECS_TYPE>[][] - Component data
+├── Resource<ECS_TYPE>[]           - Global resources
+└── ISystem<ECS_TYPE>[]            - Logic processors
+```
+
+### Entity References (Ref)
+
+```java
+public class Ref<ECS_TYPE> {
+    private final Store<ECS_TYPE> store;
+    private volatile int index;
+
+    public Store<ECS_TYPE> getStore() { return store; }
+    public int getIndex() { return index; }
+    public boolean isValid() { return index != Integer.MIN_VALUE; }
+    public void validate() { /* throws if invalid */ }
+}
+```
+
+Always check `isValid()` before using a Ref.
+
+### Components
+
+```java
+public interface Component<ECS_TYPE> extends Cloneable {
+    Component<ECS_TYPE> clone();
+    default Component<ECS_TYPE> cloneSerializable() { return clone(); }
+}
+```
+
+### Creating Components
+
+```java
+public class HealthComponent implements Component<EntityStore> {
+    public static final BuilderCodec<HealthComponent> CODEC =
+        BuilderCodec.builder(HealthComponent.class, HealthComponent::new)
+            .append(new KeyedCodec<>("MaxHealth", Codec.FLOAT),
+                (c, v) -> c.maxHealth = v, c -> c.maxHealth).add()
+            .append(new KeyedCodec<>("CurrentHealth", Codec.FLOAT),
+                (c, v) -> c.currentHealth = v, c -> c.currentHealth).add()
+            .build();
+
+    private float maxHealth = 100f;
+    private float currentHealth = 100f;
+
+    public float getMaxHealth() { return maxHealth; }
+    public float getCurrentHealth() { return currentHealth; }
+    public void damage(float amount) { currentHealth = Math.max(0, currentHealth - amount); }
+
+    @Override
+    public Component<EntityStore> clone() {
+        HealthComponent copy = new HealthComponent();
+        copy.maxHealth = this.maxHealth;
+        copy.currentHealth = this.currentHealth;
+        return copy;
+    }
+}
+```
+
+### Registering Components
+
+```java
+@Override
+protected void setup() {
+    healthComponentType = getEntityStoreRegistry().registerComponent(
+        HealthComponent.class,
+        "Health",
+        HealthComponent.CODEC
+    );
+}
+```
+
+### Accessing Components
+
+```java
+Store<EntityStore> store = entityRef.getStore();
+HealthComponent health = store.getComponent(entityRef, healthComponentType);
+
+if (health != null) {
+    float current = health.getCurrentHealth();
+    health.damage(25f);
+}
+```
+
+### Systems
+
+```java
+public class HealthRegenSystem extends EntityTickingSystem<EntityStore> {
+    private final ComponentType<EntityStore, HealthComponent> healthType;
+
+    public HealthRegenSystem(ComponentType<EntityStore, HealthComponent> healthType) {
+        this.healthType = healthType;
+    }
+
+    @Override
+    public Query<EntityStore> getQuery() { return healthType; }
+
+    @Override
+    public void tick(float dt, int index, ArchetypeChunk<EntityStore> chunk,
+                     Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+        HealthComponent health = chunk.getComponent(index, healthType);
+        if (health.getCurrentHealth() < health.getMaxHealth()) {
+            health.setCurrentHealth(health.getCurrentHealth() + dt * 5f);
+        }
+    }
+}
+```
+
+### Registering Systems
+
+```java
+@Override
+protected void setup() {
+    getEntityStoreRegistry().registerSystem(new HealthRegenSystem(healthComponentType));
+}
+```
+
+---
+
+## 3.7 Networking
+
+### Wire Format
+
+```
+[4 bytes] Length (little-endian)
+[4 bytes] Packet ID (little-endian)
+[...] Payload (may be Zstd-compressed)
+```
+
+### Key Characteristics
+
+| Feature | Description |
+|---------|-------------|
+| Byte Order | Little-endian |
+| Compression | Zstd for large packets |
+| VarInt | 7-bit encoding, max 5 bytes |
+| Strings | UTF-8 with VarInt length prefix |
+| Transport | QUIC (UDP) primary, TCP fallback |
+| Max Payload | 1,677,721,600 bytes |
+| Protocol Version | 1 |
+| Total Packets | 268 |
+| Total Structs | 315 |
+| Total Enums | 136 |
+
+### Packet Interface
+
+```java
+public interface Packet {
+    int getId();
+    void serialize(ByteBuf buffer);
+    int computeSize();
+}
+```
+
+### Intercepting Packets
+
+```java
+import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
+import com.hypixel.hytale.server.core.io.adapter.PlayerPacketFilter;
+
+PacketFilter filter = PacketAdapters.registerInbound(
+    (PlayerPacketFilter) (player, packet) -> {
+        if (packet instanceof SomePacket) {
+            return shouldBlock(packet); // true to consume
+        }
+        return false;
+    }
+);
+
+// Cleanup
+PacketAdapters.deregisterInbound(filter);
+```
+
+### Packet I/O Utilities
+
+```java
+import com.hypixel.hytale.protocol.io.PacketIO;
+import com.hypixel.hytale.protocol.io.VarInt;
+
+// Strings
+String value = PacketIO.readVarString(buf, offset);
+PacketIO.writeVarString(buf, value, maxLength);
+
+// UUIDs (16 bytes, big-endian)
+UUID uuid = PacketIO.readUUID(buf, offset);
+PacketIO.writeUUID(buf, uuid);
+
+// VarInt
+VarInt.write(buf, value);
+int value = VarInt.read(buf);
+int size = VarInt.size(value);
+```
+
+---
+
+## 3.8 Content & Assets
+
+### Asset Store Registration
+
+```java
+AssetRegistry.register(
+    HytaleAssetStore.builder(MyAsset.class, new IndexedLookupTableAssetMap<>(MyAsset[]::new))
+        .setPath("MyAssets")
+        .setCodec((AssetCodec) MyAsset.CODEC)
+        .setKeyFunction(MyAsset::getId)
+        .loadsAfter(OtherAsset.class)
+        .build()
+);
+```
+
+### Asset Class
+
+```java
+public class MyAsset implements JsonAssetWithMap<String, IndexedLookupTableAssetMap<String, MyAsset>> {
+    public static final BuilderCodec<MyAsset> CODEC =
+        BuilderCodec.builder(MyAsset.class, MyAsset::new)
+            .append(new KeyedCodec<>("Name", Codec.STRING),
+                (obj, val) -> obj.name = val, obj -> obj.name).add()
+            .append(new KeyedCodec<>("Value", Codec.INTEGER),
+                (obj, val) -> obj.value = val, obj -> obj.value).add()
+            .build();
+
+    private String id;
+    private String name;
+    private int value;
+
+    @Override
+    public String getId() { return id; }
+}
+```
+
+### Built-in Codecs
+
+| Codec | Type |
+|-------|------|
+| `Codec.STRING` | String |
+| `Codec.BOOLEAN` | boolean |
+| `Codec.INTEGER` | int |
+| `Codec.LONG` | long |
+| `Codec.FLOAT` | float |
+| `Codec.DOUBLE` | double |
+| `Codec.UUID_STRING` | UUID |
+| `Codec.list(...)` | List |
+| `Codec.map(...)` | Map |
+| `Codec.optional(...)` | Optional |
+
+---
+
+## 3.9 Inventory System
+
+### Inventory Sections
+
+| Section | ID Constant | Capacity | Description |
+|---------|-------------|----------|-------------|
+| Hotbar | HOTBAR_SECTION_ID (-1) | 9 | Quick-access |
+| Storage | STORAGE_SECTION_ID (-2) | 36 | Main inventory |
+| Armor | ARMOR_SECTION_ID (-3) | 4 | Equipment |
+| Utility | UTILITY_SECTION_ID (-5) | 4 | Utility items |
+| Tools | TOOLS_SECTION_ID (-8) | 23 | Tools |
+| Backpack | BACKPACK_SECTION_ID (-9) | Variable | Extra storage |
+
+### Accessing Inventory
+
+```java
+LivingEntity entity = /* ... */;
+Inventory inventory = entity.getInventory();
+
+ItemContainer hotbar = inventory.getHotbar();
+ItemContainer storage = inventory.getStorage();
+ItemContainer armor = inventory.getArmor();
+```
+
+### ItemStack (Immutable)
+
+```java
+ItemStack stack = new ItemStack("Stone", 64);
+ItemStack fullStack = new ItemStack("DiamondSword", 1, 100.0, 100.0, metadata);
+
+// Properties
+String itemId = stack.getItemId();
+int quantity = stack.getQuantity();
+double durability = stack.getDurability();
+boolean isEmpty = stack.isEmpty();
+
+// Modifications return new ItemStack
+ItemStack modified = stack.withQuantity(32);
+ItemStack damaged = stack.withIncreasedDurability(-10.0);
+```
+
+---
+
+## 3.10 Prefab System
+
+### PrefabStore
+
+```java
+PrefabStore store = PrefabStore.get();
+
+// Load prefabs
+BlockSelection serverPrefab = store.getServerPrefab("structures/house.prefab.json");
+BlockSelection assetPrefab = store.getAssetPrefab("buildings/tower.prefab.json");
+BlockSelection worldGenPrefab = store.getWorldGenPrefab("dungeons/cave.prefab.json");
+
+// Save prefabs
+store.saveServerPrefab("mystructure.prefab.json", selection, true);
+```
+
+### BlockSelection
+
+```java
+BlockSelection selection = new BlockSelection();
+selection.setPosition(100, 64, 200);
+selection.setAnchor(0, 0, 0);
+
+// Add blocks
+int blockId = BlockType.getAssetMap().getAsset("hytale:stone").getBlockId();
+selection.addBlockAtWorldPos(x, y, z, blockId, rotation, filler, supportValue);
+
+// Add fluids
+int fluidId = Fluid.getAssetMap().getAsset("hytale:water").getAssetIndex();
+selection.addFluidAtWorldPos(x, y, z, fluidId, (byte) 8);
+
+// Query
+boolean hasBlock = selection.hasBlockAtWorldPos(x, y, z);
+int blockCount = selection.getBlockCount();
+```
+
+---
+
+## 3.11 World Generation
+
+### Architecture
+
+```
+World Generation Hierarchy
+├── ZonePatternGenerator        - Region assignment
+│   ├── Zone[]                  - Zone definitions
+│   │   ├── BiomePatternGenerator
+│   │   │   ├── TileBiome[]     - Weighted biomes
+│   │   │   └── CustomBiome[]   - Conditional overrides
+│   │   ├── CaveGenerator
+│   │   └── UniquePrefabContainer
+│   └── ZoneColorMapping
+└── MaskProvider
+```
+
+### Biome Classes
+
+**Biome (Abstract Base):**
+- `getId()` - Unique identifier
+- `getName()` - Human-readable name
+- `getInterpolation()` - Blending settings
+- `getCoverContainer()` - Surface blocks
+- `getLayerContainer()` - Subsurface layers
+- `getPrefabContainer()` - Structures
+
+**TileBiome:** Standard weighted biomes
+- `getWeight()` - Generation frequency
+- `getSizeModifier()` - Patch scale
+
+**CustomBiome:** Conditional override biomes
+- `getCustomBiomeGenerator()` - Custom generation logic
+
+### BiomePatternGenerator
+
+```java
+BiomePatternGenerator generator = new BiomePatternGenerator(
+    pointGenerator,
+    tileBiomes,
+    customBiomes
+);
+
+Biome biome = generator.generateBiomeAt(zoneResult, seed, x, z);
+```
+
+---
+
+# SECTION 4: GUI SYSTEM
+
+## 4.1 Overview
+
+```
+Player Component
+├── WindowManager      - Inventory UIs
+├── PageManager        - Custom dialogs
+├── HudManager         - On-screen elements
+├── HotbarManager      - Hotbar slots
+└── WorldMapTracker    - Map state
+```
+
+### When to Use
+
+| System | Use Case | Examples |
+|--------|----------|----------|
+| Windows | Item-based | Chests, crafting, furnaces |
+| Pages | Full-screen UIs | Shops, dialogs, settings |
+| HUD | Always-visible | Health bars, compass, quests |
+
+---
+
+## 4.2 Windows System
+
+### WindowManager
+
+```java
+Player player = store.getComponent(ref, Player.getComponentType());
+WindowManager windowManager = player.getWindowManager();
+
+// Open window
+Window myWindow = new ContainerWindow(itemContainer);
+OpenWindow packet = windowManager.openWindow(myWindow);
+
+// Close
+windowManager.closeWindow(windowId);
+windowManager.closeAllWindows();
+```
+
+### Window Types
+
+| WindowType | Value | Description |
+|------------|-------|-------------|
+| Container | 0 | Generic container |
+| PocketCrafting | 1 | Quick crafting |
+| BasicCrafting | 2 | Standard bench |
+| DiagramCrafting | 3 | Pattern-based |
+| StructuralCrafting | 4 | Building |
+| Processing | 5 | Furnaces |
+| Memories | 6 | Collections |
+
+### Custom Window
+
+```java
+public class CustomWindow extends Window {
+    private final JsonObject windowData = new JsonObject();
+
+    public CustomWindow() {
+        super(WindowType.Container);
+        windowData.addProperty("customProperty", "value");
+    }
+
+    @Override
+    public JsonObject getData() { return windowData; }
+
+    @Override
+    protected boolean onOpen0() { return true; }
+
+    @Override
+    protected void onClose0() { /* cleanup */ }
+}
+```
+
+---
+
+## 4.3 Pages System
+
+### PageManager
+
+```java
+PageManager pageManager = playerComponent.getPageManager();
+
+// Standard page
+pageManager.setPage(ref, store, Page.Inventory);
+
+// Close
+pageManager.setPage(ref, store, Page.None);
+```
+
+### Custom Pages
+
+**BasicCustomUIPage:**
+```java
+public class WelcomePage extends BasicCustomUIPage {
+    public WelcomePage(PlayerRef playerRef) {
+        super(playerRef, CustomPageLifetime.CanDismiss);
+    }
+
+    @Override
+    public void build(UICommandBuilder commandBuilder) {
+        commandBuilder.append("Pages/WelcomePage.ui");
+        commandBuilder.set("#Title.Text", "Welcome!");
+    }
+}
+```
+
+**InteractiveCustomUIPage:**
+```java
+public class SettingsPage extends InteractiveCustomUIPage<SettingsEventData> {
+    public SettingsPage(PlayerRef playerRef) {
+        super(playerRef, CustomPageLifetime.CanDismiss, SettingsEventData.CODEC);
+    }
+
+    @Override
+    public void build(Ref<EntityStore> ref, UICommandBuilder commands,
+                      UIEventBuilder events, Store<EntityStore> store) {
+        commands.append("Pages/SettingsPage.ui");
+        events.addEventBinding(CustomUIEventBindingType.Activating, "#SaveButton",
+            EventData.of("action", "save"));
+    }
+
+    @Override
+    public void handleDataEvent(Ref<EntityStore> ref, Store<EntityStore> store,
+                                SettingsEventData data) {
+        if ("save".equals(data.action)) {
+            close();
+        }
+    }
+}
+```
+
+### CustomPageLifetime
+
+| Value | Description |
+|-------|-------------|
+| CantClose | Cannot close (death screen) |
+| CanDismiss | Escape to close |
+| CanDismissOrCloseThroughInteraction | Click outside to close |
+
+---
+
+# SECTION 5: GAMEPLAY SYSTEMS
+
+## 5.1 Damage System
+
+Handles health, damage types, damage sources, and death events.
+
+## 5.2 Movement System
+
+Controls entity velocity, locomotion states (walking, running, swimming).
+
+## 5.3 Mounts System
+
+Manages rider-mount relationships and mount control delegation.
+
+## 5.4 Interaction System
+
+Handles player input conversion to game actions (attacking, mining, using items).
+
+## 5.5 Projectile System
+
+Simulates arrows, spells, and thrown objects with physics.
+
+```java
+ProjectileConfig config = ProjectileConfig.getAssetMap().getAsset("hytale:arrow");
+Vector3d position = player.getPosition();
+Vector3d direction = player.getLookDirection();
+
+Ref<EntityStore> projectileRef = ProjectileModule.get()
+    .spawnProjectile(playerRef, commandBuffer, config, position, direction);
+```
+
+## 5.6 Entity Effects
+
+Status effects, buffs, and debuffs.
+
+```java
+EntityEffect effect = EntityEffect.getAssetMap().getAsset("hytale:poison");
+EffectControllerComponent controller = componentAccessor.getComponent(
+    entityRef, EffectControllerComponent.getComponentType());
+controller.addEffect(entityRef, effect, componentAccessor);
+```
+
+---
+
+# SECTION 6: NPC & AI SYSTEM
+
+### NPCPlugin
+
+Central registration for NPC functionality:
+- NPC entity types and components
+- Blackboard resource system
+- Core component builders
+- Spawning and flock systems
+
+### Key Components
+
+- **Role** - Complete behavior set (instructions, combat, items)
+- **NPCEntity** - Base component for all NPCs
+- **Blackboard** - Shared AI memory
+- **Decision Makers** - State evaluation
+- **Instructions** - Behavioral building blocks
+- **Navigation** - A* pathfinding
+
+### Support Systems
+
+- CombatSupport - Combat functionality
+- StateSupport - State machines
+- EntitySupport - Targeting
+- WorldSupport - World interaction
+- PositionCache - Performance optimization
+
+---
+
+# SECTION 7: COMPLETE EXAMPLE
+
+```java
+package com.example.myplugin;
+
+import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
+public class MyPlugin extends JavaPlugin {
+    private static MyPlugin instance;
+    private ComponentType<EntityStore, HealthComponent> healthType;
+
+    public MyPlugin(JavaPluginInit init) { super(init); }
+
+    public static MyPlugin get() { return instance; }
+
+    @Override
+    protected void setup() {
+        instance = this;
+
+        // Register component
+        healthType = getEntityStoreRegistry().registerComponent(
+            HealthComponent.class, "Health", HealthComponent.CODEC);
+
+        // Register system
+        getEntityStoreRegistry().registerSystem(new HealthRegenSystem(healthType));
+
+        // Register command
+        getCommandRegistry().registerCommand(new HealthCommand(healthType));
+
+        // Register event
+        getEventRegistry().register(BootEvent.class, event -> {
+            getLogger().at(Level.INFO).log("Server booted!");
+        });
+
+        getLogger().at(Level.INFO).log("MyPlugin setup complete!");
+    }
+
+    @Override
+    protected void start() {
+        getLogger().at(Level.INFO).log("MyPlugin started!");
+    }
+
+    @Override
+    protected void shutdown() {
+        getLogger().at(Level.INFO).log("MyPlugin shutting down!");
+    }
+}
+```
+
+### manifest.json
+
+```json
+{
+  "Group": "com.example",
+  "Name": "MyPlugin",
+  "Version": "1.0.0",
+  "Main": "com.example.myplugin.MyPlugin",
+  "Description": "A complete example plugin",
+  "Authors": [{ "Name": "Your Name" }],
+  "ServerVersion": ">=0.0.1",
+  "Dependencies": {},
+  "IncludesAssetPack": false
+}
+```
+
+---
+
+# COMMUNITY RESOURCES
+
+- **Discord**: https://discord.gg/jshWA2kRmF
+- **GitHub**: https://github.com/vulpeslab/hytale-docs
+
+---
+
+# IMPORTANT NOTES
+
+1. This documentation is **unofficial** and community-created
+2. Hytale is in **early access** - APIs may change
+3. Content is based on decompilation and analysis
+4. Report errors at the GitHub repository
+
+---
+
+*Generated for LLM context - Hytale Server Documentation*

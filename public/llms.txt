@@ -1,0 +1,169 @@
+# Hytale Server Documentation
+
+> Unofficial community documentation for running, configuring, and modding Hytale dedicated servers.
+
+This is a community-maintained documentation site created through analysis and decompilation of the Hytale server. Hytale is currently in early access, so content may change frequently.
+
+## About This Documentation
+
+- **Type**: Technical documentation for Hytale server administration and plugin development
+- **Audience**: Server administrators, plugin developers, and modders
+- **Technology**: Built with Astro/Starlight, hosted on Cloudflare
+- **Status**: Work in progress, unofficial community project
+
+## Quick Facts
+
+- **Default Port**: 5520 (UDP with QUIC protocol)
+- **Java Version Required**: Java 25 or higher (Adoptium/Temurin recommended)
+- **Minimum RAM**: 4GB (8GB+ recommended for larger servers)
+- **Architecture**: x64 or arm64 supported
+
+## Documentation Structure
+
+### Getting Started
+- [Introduction](/getting-started/introduction/): Overview of Hytale servers, system requirements, and quick start
+- [Installation](/getting-started/installation/): Step-by-step Java 25 installation and server setup
+
+### Server Configuration
+- [Server Index](/server/): Configuration files overview
+- [Server Settings](/server/server-config/): config.json settings (ServerName, MOTD, MaxPlayers, rate limiting)
+- [World Configuration](/server/world-config/): World-specific settings, game modes, PvP, spawn behavior
+- [Authentication](/server/authentication/): Auth modes (authenticated, offline, insecure), OAuth 2.0 device flow
+- [Performance Tuning](/server/performance/): Memory allocation, JVM garbage collection (G1GC), view distance
+- [Running as Service](/server/service/): systemd (Linux) and NSSM (Windows) setup
+- [Backups](/server/backups/): Automatic backup configuration with ZIP archives
+
+### Modding & Plugin Development
+- [Modding Overview](/modding/overview/): Architecture, plugin locations, key concepts
+- [Examples & Patterns](/modding/examples/): Complete code examples for plugin development
+
+#### Plugin System
+- [Plugin System](/modding/plugins/plugin-system/): manifest.json structure, JavaPlugin class, lifecycle methods
+- [Event System](/modding/plugins/events/): Sync/async events, priorities, cancellable events, custom events
+- [Command System](/modding/plugins/commands/): AbstractCommand, required/optional/flag arguments, subcommands
+- [Permissions](/modding/plugins/permissions/): PermissionHolder, groups, wildcards, negation
+- [Tasks](/modding/plugins/tasks/): Async task scheduling with CompletableFuture
+
+#### Entity-Component-System (ECS)
+- [ECS Overview](/modding/ecs/): Entity-Component-System architecture explanation
+- [Component System](/modding/ecs/components/): Creating components, Ref entities, systems, resources
+- [Entity Stats](/modding/ecs/entity-stats/): Health, stamina, mana, custom attributes
+- [Physics](/modding/ecs/physics/): Physics simulation and collision
+- [Player Persistence](/modding/ecs/player-persistence/): Player data storage
+
+#### Gameplay Systems
+- [Systems Overview](/modding/systems/): Core gameplay systems
+- [Damage System](/modding/systems/damage/): Health, damage types, damage sources, death handling
+- [Movement](/modding/systems/movement/): Entity velocity, locomotion states
+- [Mounts](/modding/systems/mounts/): Rider-mount relationships
+- [Interactions](/modding/systems/interactions/): Player/entity interactions
+- [Projectiles](/modding/systems/projectiles/): Projectile spawning and physics
+- [Entity Effects](/modding/systems/entity-effects/): Status effects, buffs, debuffs
+
+#### NPC & AI System
+- [NPC Overview](/modding/npc-ai/): NPCPlugin, roles, AI components
+- [Blackboard System](/modding/npc-ai/blackboard/): Shared AI memory
+- [Decision Makers](/modding/npc-ai/decision-makers/): State evaluation and conditions
+- [Instructions](/modding/npc-ai/instructions/): Behavioral building blocks
+- [Navigation](/modding/npc-ai/navigation/): A* pathfinding and movement
+- [Roles](/modding/npc-ai/roles/): High-level NPC behavior definitions
+- [Animations](/modding/npc-ai/animations/): Animation state management
+
+#### World Generation
+- [Worldgen Overview](/modding/worldgen/): Zones, biomes, caves architecture
+- [Zones](/modding/worldgen/zones/): Large-scale region configuration
+- [Biomes](/modding/worldgen/biomes/): Terrain characteristics, block placement
+- [Caves](/modding/worldgen/caves/): Underground cave generation
+- [Live Editing](/modding/worldgen/live/): Real-time world generation editing
+
+#### Content & Assets
+- [Content Overview](/modding/content/): Assets, items, prefabs, world generation
+- [Assets & Registry](/modding/content/assets/): Custom content registration
+- [Inventory & Items](/modding/content/inventory/): Player inventory management
+- [Prefabs](/modding/content/prefabs/): Structure creation and placement
+- [Fluids](/modding/content/fluid/): Fluid system and flow
+- [Time System](/modding/content/time/): Day/night cycle, moon phases
+- [Lighting](/modding/content/lighting/): Chunk lighting system
+
+#### Networking
+- [Networking Overview](/modding/networking/): QUIC/UDP protocol, Netty, Zstd compression
+- [Protocol & Packets](/modding/networking/protocol/): Wire format, packet structure, interception
+
+#### Spawning & Flocking
+- [Spawning System](/modding/spawning/): Entity spawning configuration
+- [Flock System](/modding/flock/): Group behavior management
+
+### GUI System
+- [GUI Overview](/gui/): Windows, Pages, HUD architecture
+- [Windows System](/gui/windows/): Inventory-based UIs (containers, crafting)
+- [Pages System](/gui/pages/): Custom dialogs, menus, overlays
+- [HUD System](/gui/hud/): Persistent on-screen elements
+- [UI Builders](/gui/builders/): UICommandBuilder and UIEventBuilder
+
+## Key Technical Details
+
+### Server Launch Command
+```bash
+java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
+```
+
+### Important Command-Line Arguments
+- `--assets <Path>`: Path to assets directory or .zip file
+- `-b, --bind <Address>`: Address and port (default: 0.0.0.0:5520)
+- `-t, --transport <Type>`: TCP or QUIC (default: QUIC)
+- `--auth-mode <Mode>`: AUTHENTICATED, OFFLINE, or INSECURE
+- `--mods <Paths>`: Additional mod directories
+- `--backup`: Enable automatic backups
+- `--backup-dir <Path>`: Backup directory
+- `--backup-frequency <Minutes>`: Backup interval (default: 30)
+
+### Plugin Manifest (manifest.json)
+```json
+{
+  "Group": "com.example",
+  "Name": "MyPlugin",
+  "Version": "1.0.0",
+  "Main": "com.example.MyPlugin",
+  "ServerVersion": ">=0.0.1",
+  "Dependencies": {},
+  "IncludesAssetPack": false
+}
+```
+
+### Plugin Lifecycle
+1. `setup()` - Register components, commands, events
+2. `start()` - Start background tasks, initialize state
+3. `shutdown()` - Clean up resources, save data
+
+### Network Protocol Characteristics
+- Byte Order: Little-endian
+- Compression: Zstd for large packets
+- VarInt: 7-bit encoding, max 5 bytes
+- Transport: QUIC (UDP) primary, TCP fallback
+- Max Payload: ~1.56GB
+
+### Authentication Modes
+- **authenticated**: Default, requires valid Hytale accounts
+- **offline**: No verification, for private/LAN servers
+- **insecure**: Development only, all security disabled
+
+### Game Modes
+- Adventure (ID: 0) - Default mode
+- Creative (ID: 1) - Creative mode
+
+## Community Resources
+
+- **Discord**: https://discord.gg/jshWA2kRmF
+- **GitHub**: https://github.com/vulpeslab/hytale-docs
+
+## Important Notes
+
+1. This documentation is **unofficial** and community-created
+2. Hytale is in **early access** - APIs and features may change
+3. Content is based on decompilation and analysis
+4. Report errors or contribute at the GitHub repository
+
+## Optional: Detailed Documentation
+
+For the complete documentation in a single file format optimized for LLM context, see:
+- [/llms-full.txt](/llms-full.txt) - Full documentation content (if available)
