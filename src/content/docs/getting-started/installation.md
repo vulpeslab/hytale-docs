@@ -259,4 +259,4 @@ You'll see output like:
 
 ## Next Steps
 
-Your server is now running! Continue with [Server Configuration](/getting-started/project-setup/) to customize your server settings.
+Your server is now running! Continue with [Server Configuration](/server/server-config/) to customize your server settings.

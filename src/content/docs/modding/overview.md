@@ -11,31 +11,31 @@ This documentation provides a comprehensive guide to creating mods and plugins f
 
 <div class="not-content">
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
-<a href="/docs/modding/plugins" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/plugins" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">🔌 Plugin Development</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Plugin system, events, commands, permissions, and task scheduling.</p>
 </a>
-<a href="/docs/modding/ecs" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/ecs" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">🎯 Entity System (ECS)</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Components, entity stats, physics simulation, and player persistence.</p>
 </a>
-<a href="/docs/modding/systems" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/systems" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">⚙️ Gameplay Systems</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Damage, movement, mounts, interactions, projectiles, and effects.</p>
 </a>
-<a href="/docs/modding/npc-ai" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/npc-ai" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">🤖 NPC & AI</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">AI behaviors, spawning, flocking, and navigation.</p>
 </a>
-<a href="/docs/modding/worldgen" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/worldgen" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">🌍 World Generation</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Zones, biomes, and cave systems.</p>
 </a>
-<a href="/docs/modding/content" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/content" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">📦 Content & World</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Assets, inventory, prefabs, fluids, time, and lighting.</p>
 </a>
-<a href="/docs/modding/networking" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
+<a href="/modding/networking" style="display: block; padding: 1.25rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; text-decoration: none;">
 <strong style="color: var(--sl-color-white);">🌐 Networking</strong>
 <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--sl-color-gray-2);">Protocol handling, packet interception, and network utilities.</p>
 </a>
@@ -70,16 +70,16 @@ Plugins are loaded from multiple locations in this order:
 ## Key Concepts
 
 ### Plugins
-Plugins are Java JAR files placed in the `mods/` directory. Each plugin has a `manifest.json` that defines metadata, dependencies, and the main class. See [Plugin Development](/docs/modding/plugins) for details.
+Plugins are Java JAR files placed in the `mods/` directory. Each plugin has a `manifest.json` that defines metadata, dependencies, and the main class. See [Plugin Development](/modding/plugins) for details.
 
 ### Components (ECS)
-Hytale uses an Entity-Component-System architecture. Entities are lightweight references, components store data, and systems process logic. See [Entity System](/docs/modding/ecs) for details.
+Hytale uses an Entity-Component-System architecture. Entities are lightweight references, components store data, and systems process logic. See [Entity System](/modding/ecs) for details.
 
 ### Events
-The event system allows plugins to react to game occurrences. Events can be synchronous or asynchronous, and support priority ordering. See [Events](/docs/modding/plugins/events) for details.
+The event system allows plugins to react to game occurrences. Events can be synchronous or asynchronous, and support priority ordering. See [Events](/modding/plugins/events) for details.
 
 ### Registries
-Custom content (components, commands, assets) is registered through type-safe registries that handle lifecycle management. See [Assets & Registry](/docs/modding/content/assets) for details.
+Custom content (components, commands, assets) is registered through type-safe registries that handle lifecycle management. See [Assets & Registry](/modding/content/assets) for details.
 
 ## Requirements
 
