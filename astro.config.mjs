@@ -44,6 +44,7 @@ export default defineConfig({
 								{ label: 'Plugin System', slug: 'modding/plugins/plugin-system' },
 								{ label: 'Event System', slug: 'modding/plugins/events' },
 								{ label: 'Commands', slug: 'modding/plugins/commands' },
+								{ label: 'Translations', slug: 'modding/plugins/translations' },
 								{ label: 'Permissions', slug: 'modding/plugins/permissions' },
 								{ label: 'Task Scheduling', slug: 'modding/plugins/tasks' },
 							],
