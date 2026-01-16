@@ -73,6 +73,7 @@ package com.example;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import javax.annotation.Nonnull;
+import java.util.logging.Level;
 
 public class MyPlugin extends JavaPlugin {
 
@@ -120,6 +121,7 @@ The plugin system fires events at each lifecycle stage:
 
 ```java
 import com.hypixel.hytale.server.core.event.events.BootEvent;
+import java.util.logging.Level;
 
 // In setup()
 getEventRegistry().register(BootEvent.class, event -> {

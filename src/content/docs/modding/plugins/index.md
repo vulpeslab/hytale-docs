@@ -4,6 +4,7 @@ title: Plugin Development
 description: Learn the fundamentals of creating plugins for the Hytale server.
 sidebar:
   order: 1
+verified: false
 ---
 
 This section covers everything you need to know about creating plugins for the Hytale dedicated server.
