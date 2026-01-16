@@ -261,7 +261,7 @@ events.register(DrainPlayerFromWorldEvent.class, "world_name", event -> {
 // Player ready to receive gameplay (keyed by world name - extends PlayerEvent<String>)
 events.register(PlayerReadyEvent.class, "world_name", event -> {
     Player player = event.getPlayer();
-    Ref<EntityStore> ref = event.getRef();
+    Ref<EntityStore> ref = event.getPlayerRef();
     int readyId = event.getReadyId(); // Increments each time the player becomes ready
 
     // Safe to send initial game state now

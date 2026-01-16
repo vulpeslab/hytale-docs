@@ -110,29 +110,46 @@ public class ForceAccumulator {
 The `ForceProviderStandard` implements common physical forces:
 
 ```java
+import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.server.core.modules.physics.util.ForceAccumulator;
 import com.hypixel.hytale.server.core.modules.physics.util.ForceProviderStandard;
+import com.hypixel.hytale.server.core.modules.physics.util.ForceProviderStandardState;
+import com.hypixel.hytale.server.core.modules.physics.util.PhysicsBodyState;
 
 public abstract class ForceProviderStandard implements ForceProvider {
+    protected final Vector3d dragForce = new Vector3d();
+
     @Override
     public void update(PhysicsBodyState bodyState, ForceAccumulator accumulator, boolean onGround) {
+        ForceProviderStandardState standardState = getForceProviderStandardState();
+        Vector3d extForce = standardState.externalForce;
+        double extForceY = extForce.y;
+
         // External forces
-        accumulator.force.add(state.externalForce);
+        accumulator.force.add(extForce);
 
         // Drag force (air resistance)
-        double dragForceDivSpeed = state.dragCoefficient *
-            getProjectedArea(bodyState, accumulator.speed) * accumulator.speed;
+        double speed = accumulator.speed;
+        double dragForceDivSpeed = standardState.dragCoefficient *
+            getProjectedArea(bodyState, speed) * speed;
         dragForce.assign(bodyState.velocity).scale(-dragForceDivSpeed);
+        clipForce(dragForce, accumulator.resistanceForceLimit);
         accumulator.force.add(dragForce);
 
         // Gravity and friction
-        double gravityForce = -state.gravity * getMass(getVolume());
+        double gravityForce = -standardState.gravity * getMass(getVolume());
         if (onGround) {
-            // Apply friction when on ground
-            double frictionForce = gravityForce * getFrictionCoefficient();
-            // ...
+            double frictionForce = (gravityForce + extForceY) * getFrictionCoefficient();
+            if (speed > 0.0 && frictionForce > 0.0) {
+                accumulator.force.x -= bodyState.velocity.x * (frictionForce / speed);
+                accumulator.force.z -= bodyState.velocity.z * (frictionForce / speed);
+            }
         } else {
-            // Apply gravity when airborne
             accumulator.force.y += gravityForce;
+        }
+
+        if (standardState.displacedMass != 0.0) {
+            accumulator.force.y += standardState.displacedMass * standardState.gravity;
         }
     }
 }
@@ -144,13 +161,13 @@ public abstract class ForceProviderStandard implements ForceProvider {
 
 | Integrator | Description |
 |------------|-------------|
-| `SymplecticEuler` | Fast, energy-preserving (default) |
+| `SymplecticEuler` | Fast, energy-preserving (used by `SimplePhysicsProvider`) |
 | `Midpoint` | Second-order accuracy |
 | `RK4` | Fourth-order accuracy for complex trajectories |
 
 ### Symplectic Euler Integrator
 
-The default integrator uses Symplectic Euler for energy conservation:
+`SimplePhysicsProvider` uses Symplectic Euler for energy conservation:
 
 ```java
 public class PhysicsBodyStateUpdaterSymplecticEuler extends PhysicsBodyStateUpdater {
@@ -256,6 +273,30 @@ public class MyCollisionHandler implements IBlockCollisionConsumer {
         }
         return Result.CONTINUE;
     }
+
+    @Override
+    public Result probeCollisionDamage(int blockX, int blockY, int blockZ,
+                                       Vector3d direction, BlockContactData contactData,
+                                       BlockData blockData) {
+        return Result.CONTINUE;
+    }
+
+    @Override
+    public void onCollisionDamage(int blockX, int blockY, int blockZ,
+                                  Vector3d direction, BlockContactData contactData,
+                                  BlockData blockData) {
+        // Optional: handle damage
+    }
+
+    @Override
+    public Result onCollisionSliceFinished() {
+        return Result.CONTINUE;
+    }
+
+    @Override
+    public void onCollisionFinished() {
+        // Optional cleanup
+    }
 }
 ```
 
@@ -270,9 +311,9 @@ public class PhysicsMath {
 
     // Calculate terminal velocity
     public static double getTerminalVelocity(double mass, double density,
-                                              double area, double dragCoefficient) {
+                                              double areaMillimetersSquared, double dragCoefficient) {
         double massGrams = mass * 1000.0;
-        double areaMeters = area * 1000000.0;
+        double areaMeters = areaMillimetersSquared * 1000000.0;
         return Math.sqrt(64.0 * massGrams / (density * areaMeters * dragCoefficient));
     }
 

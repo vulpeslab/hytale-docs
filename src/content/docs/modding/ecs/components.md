@@ -245,7 +245,7 @@ if (health != null) {
 ### Ensure Component Exists
 
 ```java
-// Throws if component missing
+// Creates the component if missing
 HealthComponent health = store.ensureAndGetComponent(entityRef, healthComponentType);
 ```
 
@@ -273,7 +273,7 @@ commandBuffer.removeComponent(entityRef, healthComponentType);
 HealthComponent health = store.getComponent(entityRef, healthComponentType);
 if (health != null) {
     health.damage(25f);
-    // Changes are automatically tracked
+    // You're mutating the stored instance; no reinsert needed
 }
 ```
 
@@ -447,22 +447,33 @@ Query<EntityStore> all = Query.any();
 
 ## Command Buffer
 
-All entity modifications go through `CommandBuffer` for thread safety:
+When iterating or ticking systems, use the `CommandBuffer` provided by the store/system to queue entity mutations safely:
 
 ```java
-CommandBuffer<EntityStore> buffer = store.getCommandBuffer();
+public class CleanupSystem extends EntityTickingSystem<EntityStore> {
 
-// Queue operations - these don't execute immediately
-Ref<EntityStore> newEntity = buffer.addEntity(holder, AddReason.SPAWN);
-buffer.addComponent(newEntity, healthType, new HealthComponent(100f));
-buffer.removeEntity(oldEntity, RemoveReason.REMOVE);
+    @Override
+    public Query<EntityStore> getQuery() {
+        return healthType;
+    }
 
-// Run arbitrary code at end of tick
-buffer.run(store -> {
-    // This runs after all queued commands
-});
+    @Override
+    public void tick(float dt, int index,
+                     ArchetypeChunk<EntityStore> chunk,
+                     Store<EntityStore> store,
+                     CommandBuffer<EntityStore> buffer) {
+        Ref<EntityStore> ref = chunk.getReferenceTo(index);
+        HealthComponent health = chunk.getComponent(index, healthType);
 
-// Operations execute at end of tick
+        if (health != null && health.getCurrentHealth() <= 0f) {
+            buffer.removeEntity(ref, RemoveReason.REMOVE);
+        }
+
+        buffer.run(storeRef -> {
+            // Runs after queued commands are consumed
+        });
+    }
+}
 ```
 
 Available `AddReason` values:

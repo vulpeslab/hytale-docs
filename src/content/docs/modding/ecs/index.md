@@ -48,16 +48,13 @@ Store<ECS_TYPE>
 EntityStore entityStore = world.getEntityStore();
 Store<EntityStore> store = entityStore.getStore();
 
-// Create an entity using a Holder with an Archetype
-Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder(
-    Archetype.of(positionType, velocityType, healthType),
-    new Component[] {
-        new PositionComponent(0, 64, 0),
-        new VelocityComponent(),
-        new HealthComponent(100)
-    }
-);
-Ref<EntityStore> entity = store.addEntity(holder, AddReason.SPAWNED);
+// Create an entity using a Holder
+Holder<EntityStore> holder = EntityStore.REGISTRY.newHolder();
+holder.addComponent(positionType, new PositionComponent(0, 64, 0));
+holder.addComponent(velocityType, new VelocityComponent());
+holder.addComponent(healthType, new HealthComponent(100));
+
+Ref<EntityStore> entity = store.addEntity(holder, AddReason.SPAWN);
 
 // Get a component from an entity using ComponentType (not Class)
 PositionComponent pos = store.getComponent(entity, positionType);

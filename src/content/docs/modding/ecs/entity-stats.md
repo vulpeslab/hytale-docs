@@ -236,20 +236,17 @@ Create a file at `Entity/Stats/MyCustomStat.json`:
 | `Max` | Float | Maximum bound |
 | `Shared` | Boolean | Visible to other players |
 | `IgnoreInvulnerability` | Boolean | Can decrease when invulnerable |
+| `MinValueEffects` | Object | Effects triggered at min value (sound, particles, interactions) |
+| `MaxValueEffects` | Object | Effects triggered at max value (sound, particles, interactions) |
 | `ResetType` | Enum | `InitialValue` or `MaxValue` |
 | `Regenerating` | Array | Regeneration rules |
 
 ### Accessing Custom Stats
 
 :::caution[Asset Loading Timing]
-Custom stat types from your plugin's asset pack are **not available** during the `setup()` or `start()` methods of your plugin. This is because:
-
-- **During `setup()`**: Only pre-loaded internal assets are available (like the `UNKNOWN` stat type). The base game assets have not been loaded yet.
-- **During `start()`**: Base game assets (Health, Stamina, etc.) are available, but your plugin's custom assets are loaded **after** `start()` returns.
-
-To safely access custom stat types, use one of these approaches:
-1. Register a `LoadedAssetsEvent` listener in `setup()` (recommended)
-2. Use lazy initialization when the stat is first needed
+Entity stat assets are only guaranteed after the `LoadedAssetsEvent` for `EntityStatType` (initial load or reload). If you resolve custom stat indices during plugin `setup()`/`start()`, they may not be available yet. Prefer:
+1. Registering a `LoadedAssetsEvent` listener for `EntityStatType` in `setup()` (recommended)
+2. Lazy-resolving indices when first needed
 :::
 
 ```java
@@ -275,11 +272,15 @@ Conditions control when regeneration occurs:
 | `Gliding` | True when entity is gliding |
 | `Charging` | True when entity is charging an attack |
 | `Environment` | True when in specific environments |
+| `LogicCondition` | Combine conditions with AND/OR |
 | `Stat` | Compare stat value against threshold |
 | `Alive` | True when entity is alive |
 | `NoDamageTaken` | True after delay since taking damage |
+| `Suffocating` | True when entity cannot breathe at its current position |
 | `Sprinting` | True when entity is sprinting |
 | `Player` | Check player game mode |
+| `RegenHealth` | Always true (reserved for health regen rules) |
+| `Wielding` | True when entity is wielding an item |
 
 ## Example: Custom Resource System
 
