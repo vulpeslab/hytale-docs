@@ -265,7 +265,7 @@ public JsonObject getData() {
 }
 ```
 
-The window data string is serialized via `window.getData().toString()` and has a maximum size of 4,096,000 characters.
+The window data string is serialized via `window.getData().toString()` and has a maximum size of 4,096,000 bytes (UTF-8 length).
 
 ## WindowAction Types
 

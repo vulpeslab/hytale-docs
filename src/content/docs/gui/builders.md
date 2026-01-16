@@ -51,7 +51,7 @@ builder.append("#container", "Components/Button.ui");
 builder.appendInline("#container", "Label { Text: No items found; Style: (Alignment: Center); }");
 ```
 
-**Important:** Inline UI markup is limited to simple elements like `Label` and `Group`. For complex layouts with images, custom panels, or backgrounds, create a `.ui` file in your plugin's asset pack instead.
+**Important:** The server does not validate inline UI markup; it is sent verbatim to the client. For complex layouts with images, custom panels, or backgrounds, prefer a `.ui` file in your plugin's asset pack.
 
 ### Inserting Content
 
@@ -59,7 +59,7 @@ builder.appendInline("#container", "Label { Text: No items found; Style: (Alignm
 // Insert before an element (recommended for complex UI)
 builder.insertBefore("#target-element", "Components/Header.ui");
 
-// Insert inline before an element (limited to simple elements)
+// Insert inline before an element (client-side markup string)
 builder.insertBeforeInline("#target-element", "Label { Text: Header; Style: (FontSize: 18); }");
 ```
 
@@ -225,9 +225,9 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 
 // Create event data (all values are stored as strings)
 EventData data = new EventData()
-    .append("action", "submit")
-    .append("itemId", "123")
-    .append("quantity", "5");  // Note: numeric values must be strings
+    .append("Action", "submit")
+    .append("ItemId", "123")
+    .append("Quantity", "5");  // Note: numeric values must be strings
 
 // Bind with data
 eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#submit-btn", data);
@@ -272,19 +272,19 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 
 // Create empty event data using no-arg constructor
 EventData data = new EventData()
-    .append("key1", "value1")
-    .append("key2", "value2")
-    .append("count", "42");
+    .append("Key1", "value1")
+    .append("Key2", "value2")
+    .append("Count", "42");
 
 // Create with initial value using factory method
-EventData data = EventData.of("action", "confirm");
+EventData data = EventData.of("Action", "confirm");
 
 // Append enum values (converted to enum name string)
-data.append("direction", Direction.NORTH);  // stores "NORTH"
+data.append("Direction", Direction.NORTH);  // stores "NORTH"
 
 // Create with an existing map
 Map<String, String> existingMap = new HashMap<>();
-existingMap.put("key", "value");
+existingMap.put("Key", "value");
 EventData data = new EventData(existingMap);
 ```
 
@@ -306,6 +306,10 @@ All values are stored as strings in the underlying map:
 
 - `String` - Text values (stored directly)
 - `Enum<T>` - Enum constants (serialized via `name()` method)
+
+:::note
+If you decode event data with `KeyedCodec` (as in `InteractiveCustomUIPage`), any key that starts with a letter must be uppercase.
+:::
 
 ## Complete Example
 
@@ -355,7 +359,7 @@ public class ShopPage extends InteractiveCustomUIPage<ShopEventData> {
             events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#buy-btn-" + i,
-                EventData.of("action", "buy").append("index", String.valueOf(i))
+                EventData.of("Action", "buy").append("Index", String.valueOf(i))
             );
         }
 
@@ -405,9 +409,9 @@ ElementType {
 }
 ```
 
-### Supported Inline Elements
+### Inline Markup Examples
 
-Inline UI markup (`appendInline`, `insertBeforeInline`) is limited to simple elements:
+Inline UI markup (`appendInline`, `insertBeforeInline`) is interpreted by the client; the server does not validate which element types are accepted. Common examples:
 
 | Element | Description | Example |
 |---------|-------------|---------|

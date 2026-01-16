@@ -89,7 +89,7 @@ public abstract class CustomUIPage {
     protected void rebuild();
 
     // Send partial updates to the page (multiple overloads)
-    protected void sendUpdate();  // Rebuild without arguments
+    protected void sendUpdate();  // Sends an update with no commands (does not rebuild)
     protected void sendUpdate(@Nullable UICommandBuilder commandBuilder);
     protected void sendUpdate(@Nullable UICommandBuilder commandBuilder, boolean clear);
 
@@ -153,7 +153,7 @@ public class SettingsPage extends InteractiveCustomUIPage<SettingsEventData> {
                       UIEventBuilder events, Store<EntityStore> store) {
         commands.append("Pages/SettingsPage.ui");
 
-        // Bind save button (note: keys must start with uppercase)
+        // Bind save button (note: keys that start with letters must be uppercase)
         events.addEventBinding(
             CustomUIEventBindingType.Activating,
             "#SaveButton",
@@ -195,9 +195,9 @@ public static class SettingsEventData {
 
 ### Event Data Keys
 
-**Important:** `KeyedCodec` requires all keys to start with an uppercase letter (or `@` for reference keys).
+**Important:** `KeyedCodec` requires that if a key starts with a letter, it must be uppercase. `@`-prefixed reference keys are allowed.
 
-- **Static keys** (e.g., `"Action"`) - Sent as literal values, must start with uppercase
+- **Static keys** (e.g., `"Action"`) - Sent as literal values, and if they start with a letter, it must be uppercase
 - **Reference keys** (prefixed with `@`, e.g., `"@Value"`) - Reference UI element values at event time
 
 ### EventData Methods
@@ -205,7 +205,7 @@ public static class SettingsEventData {
 `EventData` only supports `String` and `Enum` values. Numbers must be converted to strings:
 
 ```java
-// Static factory method - keys must start with uppercase
+// Static factory method - keys that start with letters must be uppercase
 EventData.of("Action", "save")
 
 // Append methods (returns self for chaining)
@@ -224,7 +224,7 @@ The `UIEventBuilder` creates event bindings for UI elements:
 // Basic event binding
 events.addEventBinding(CustomUIEventBindingType.Activating, "#Button");
 
-// With event data (keys must start with uppercase)
+// With event data (keys that start with letters must be uppercase)
 events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("Action", "click"));
 
 // With locksInterface parameter (default is true)
@@ -318,7 +318,7 @@ public class ShopPage extends InteractiveCustomUIPage<ShopPage.ShopEventData> {
             commands.set("#Item" + i + ".Name", item.getName());
             commands.set("#Item" + i + ".Price", item.getPrice() + "c");
 
-            // Note: KeyedCodec keys must start with uppercase
+            // Note: KeyedCodec keys that start with letters must be uppercase
             events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#BuyBtn" + i,

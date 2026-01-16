@@ -432,4 +432,4 @@ public void startBossFight(PlayerRef playerRef, HudManager hudManager, String bo
 2. **Use incremental updates** - Pass `clear=false` to `update()` for partial updates
 3. **Cache HUD instances** - Reuse `CustomUIHud` rather than recreating
 4. **Respect preferences** - Allow players to toggle optional elements
-5. **Clean up on disconnect** - Custom HUDs are auto-cleared on disconnect
+5. **Clean up on disconnect** - Clear custom HUDs explicitly (e.g., `setCustomHud(playerRef, null)` or `resetHud(playerRef)`) when the player leaves
