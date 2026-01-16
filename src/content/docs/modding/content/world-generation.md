@@ -39,7 +39,8 @@ public interface IWorldGen {
         LongPredicate stillNeeded
     );
 
-    // Get spawn points
+    // Get spawn points (deprecated)
+    @Deprecated
     Transform[] getSpawnPoints(int seed);
 
     // Get default spawn provider (default method)
@@ -49,6 +50,8 @@ public interface IWorldGen {
     default void shutdown();
 }
 ```
+
+Note: `getSpawnPoints(...)` is `@Deprecated`. The default `getDefaultSpawnProvider(...)` wraps `new FitToHeightMapSpawnProvider(new IndividualSpawnProvider(getSpawnPoints(seed)))`.
 
 ### Registering Custom Generators
 
@@ -254,14 +257,14 @@ public interface ICoordinateCondition {
 public interface IDoubleCondition {
     boolean eval(double value);
     // Optional: evaluate with a function
-    default boolean eval(int index, IntToDoubleFunction function);
+    default boolean eval(int seed, IntToDoubleFunction seedFunction);
 }
 
 // Integer value condition
 public interface IIntCondition {
     boolean eval(int value);
     // Optional: evaluate with a function
-    default boolean eval(int index, IntToIntFunction function);
+    default boolean eval(int seed, IntToIntFunction seedFunction);
 }
 ```
 

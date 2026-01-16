@@ -35,14 +35,14 @@ AssetRegistry (com.hypixel.hytale.assetstore.AssetRegistry)
 │   ├── AssetCodec<K, T>      - Serialization/deserialization
 │   ├── AssetMap<K, T>        - Storage and lookup
 │   └── AssetPack             - Content pack container
-└── TagPattern                 - Asset tag matching
+└── Tag indices               - TAG_MAP / CLIENT_TAG_MAP (string → int)
 
-World Generation (com.hypixel.hytale.server.worldgen)
-├── IWorldGen                  - Generator interface
-├── ChunkGenerator             - Terrain generation
-├── CavePopulator              - Underground cave generation
-├── CaveNodeType               - Cave configuration
-└── PrefabStore                - Structure placement
+World Generation (core + server.worldgen)
+├── IWorldGen                  - Generator interface (server.core.universe.world.worldgen)
+├── IWorldGenProvider          - Generator provider (worldgen.provider)
+├── ChunkGenerator             - Terrain generation (server.worldgen.chunk)
+├── CavePopulator / CaveGenerator / CaveNodeType
+└── PrefabStore                - Structure placement (server.core.prefab)
 ```
 
 ## Quick Example
@@ -50,11 +50,11 @@ World Generation (com.hypixel.hytale.server.worldgen)
 ### Registering an Asset
 
 ```java
-// In your plugin's setup method, use the provided AssetRegistry
+// In your plugin's setup method, use getAssetRegistry()
 @Override
-protected void setup(AssetRegistry registry) {
+protected void setup() {
     // For String-keyed assets (most common case)
-    registry.register(
+  getAssetRegistry().register(
         HytaleAssetStore.builder(MyAsset.class, new IndexedLookupTableAssetMap<>(MyAsset[]::new))
             .setPath("MyAssets")
             .setCodec(MyAsset.CODEC)
@@ -78,7 +78,7 @@ BlockSelection prefab = store.getServerPrefab("structures/house.prefab.json");
 prefab.place(commandSender, world, new Vector3i(100, 64, 100), null);
 
 // Alternative: place without returning replaced blocks
-prefab.placeNoReturn(null, null, world, componentAccessor);
+prefab.placeNoReturn(world, new Vector3i(100, 64, 100), componentAccessor);
 ```
 
 ## Content Types

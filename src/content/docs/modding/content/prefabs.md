@@ -56,6 +56,7 @@ BlockSelection customPrefab = store.getPrefab(Path.of("/absolute/path/to/prefab.
 
 :::note
 `getAssetPrefabFromAnyPack()` returns `@Nullable BlockSelection` - always check for null when using this method.
+`getServerPrefab(...)`, `getAssetPrefab(...)`, and `getWorldGenPrefab(...)` are `@Nonnull` and throw `PrefabLoadException` if the file is missing.
 :::
 
 ### Saving Prefabs
@@ -63,14 +64,10 @@ BlockSelection customPrefab = store.getPrefab(Path.of("/absolute/path/to/prefab.
 ```java
 BlockSelection selection = /* ... */;
 
-// Save to server prefabs directory (throws PrefabSaveException if file exists)
-store.saveServerPrefab("mystructure.prefab.json", selection);
-
-// Save with overwrite flag
+// Save to server prefabs directory
 store.saveServerPrefab("mystructure.prefab.json", selection, true);
 
 // Save to asset prefabs directory
-store.saveAssetPrefab("mystructure.prefab.json", selection);
 store.saveAssetPrefab("mystructure.prefab.json", selection, true);
 
 // Save to world generation prefabs directory
@@ -83,6 +80,10 @@ store.savePrefab(Path.of("/custom/path/structure.prefab.json"), selection, true)
 
 :::caution
 Saving a prefab will invalidate its cache entry. The `PrefabSaveException` is thrown with type `ALREADY_EXISTS` if the file exists and overwrite is false, or type `ERROR` for other I/O failures.
+:::
+
+:::caution
+In the decompiled code, `saveServerPrefab(key, prefab)` and `saveAssetPrefab(key, prefab)` delegate to `saveWorldGenPrefab(...)`. Use the overloads with the `overwrite` flag if you need server or asset paths.
 :::
 
 ## BlockSelection
@@ -173,20 +174,20 @@ boolean hasLocalBlock = selection.hasBlockAtLocalPos(localX, localY, localZ);
 int blockId = selection.getBlockAtWorldPos(x, y, z);
 
 // Get fluid ID and level
-int fluidId = selection.getFluidAtWorldPos(x, y, z);
-byte fluidLevel = selection.getFluidLevelAtWorldPos(x, y, z);
+int fluidId = selection.getFluidAtWorldPos(x, y, z);     // Integer.MIN_VALUE if not found
+byte fluidLevel = selection.getFluidLevelAtWorldPos(x, y, z); // 0 if not found
 
 // Get support value (for physics)
 int supportValue = selection.getSupportValueAtWorldPos(x, y, z);
 
 // Get block state holder (for block entities)
-Holder<ChunkStore> state = selection.getStateAtWorldPos(x, y, z);
+Holder<ChunkStore> state = selection.getStateAtWorldPos(x, y, z); // nullable
 
 // Get counts
 int blockCount = selection.getBlockCount();
 int fluidCount = selection.getFluidCount();
 int entityCount = selection.getEntityCount();
-int volume = selection.getSelectionVolume();
+int volume = selection.getSelectionVolume(); // xLength * yLength & zLength (bitwise AND)
 ```
 
 ### Iterating Content

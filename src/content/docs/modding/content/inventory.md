@@ -13,7 +13,7 @@ The Hytale inventory system provides comprehensive APIs for managing player inve
 ```
 Inventory (Player inventory manager)
 ├── ItemContainer (Storage, Hotbar, Armor, Utility, Backpack, Tools)
-│   └── ItemStack (Individual item instances - immutable)
+│   └── ItemStack (Individual item instances - mutable; most with* methods return new stacks)
 └── CombinedItemContainer (Combined views of multiple containers)
 
 Item (Asset definition)
@@ -64,7 +64,7 @@ ItemContainer section = inventory.getSectionById(Inventory.HOTBAR_SECTION_ID);
 ```java
 // Get/set active hotbar slot (0-8)
 byte activeSlot = inventory.getActiveHotbarSlot();
-inventory.setActiveHotbarSlot((byte) 3);
+inventory.setActiveHotbarSlot((byte) 3); // also sets usingToolsItem=false
 
 // Get item currently in hand (returns active hotbar or tools item)
 ItemStack itemInHand = inventory.getItemInHand();
@@ -77,7 +77,7 @@ ItemStack utilityItem = inventory.getUtilityItem();
 
 // Tools slot management
 byte toolsSlot = inventory.getActiveToolsSlot();
-inventory.setActiveToolsSlot((byte) 0);
+inventory.setActiveToolsSlot((byte) 0);  // also sets usingToolsItem=true
 ItemStack toolsItem = inventory.getToolsItem();
 
 // Check if using tools item vs hotbar
@@ -126,7 +126,7 @@ inventory.clear();
 
 ## ItemStack
 
-`ItemStack` represents an **immutable** stack of items with quantity, durability, and metadata. All modification methods return a new ItemStack instance.
+`ItemStack` represents a stack of items with quantity, durability, and metadata. Most `with*` methods return a new instance, but the class is not strictly immutable (for example, `setOverrideDroppedItemAnimation(...)` mutates the stack).
 
 ### Creating ItemStacks
 
@@ -156,6 +156,8 @@ ItemStack fullStack = new ItemStack(
 ItemStack empty = ItemStack.EMPTY;
 ```
 
+Note: `ItemStack` constructors throw if `itemId` is `"Empty"` or `quantity <= 0`.
+
 ### ItemStack Properties
 
 ```java
@@ -174,10 +176,10 @@ boolean isUnbreakable = stack.isUnbreakable(); // True if maxDurability <= 0
 
 // Validation
 boolean isEmpty = stack.isEmpty();              // True if itemId equals "Empty"
-boolean isValid = stack.isValid();              // True if empty or item exists
+boolean isValid = stack.isValid();              // True if empty or if getItem() is non-null (Item.UNKNOWN for missing)
 
 // Block-related (for placeable items)
-String blockKey = stack.getBlockKey();          // Returns block ID or null
+String blockKey = stack.getBlockKey();          // "Empty" if empty, otherwise block ID or null
 
 // Metadata (deprecated, use getFromMetadataOrNull)
 BsonDocument meta = stack.getMetadata();        // Returns cloned metadata or null
@@ -185,7 +187,7 @@ BsonDocument meta = stack.getMetadata();        // Returns cloned metadata or nu
 
 ### Modifying ItemStacks
 
-ItemStack is immutable. All modification methods return a **new** ItemStack instance.
+Most modification methods return a **new** ItemStack instance. `setOverrideDroppedItemAnimation(...)` mutates the existing stack.
 
 ```java
 // Quantity (returns new ItemStack, or null if quantity is 0)
@@ -200,6 +202,9 @@ ItemStack restored = stack.withRestoredDurability(100.0);  // Sets both to 100
 // Metadata modifications
 ItemStack withMeta = stack.withMetadata(newMetadataDoc);
 ItemStack withKey = stack.withMetadata("CustomKey", bsonValue);
+
+// Mutating flag
+stack.setOverrideDroppedItemAnimation(true);
 
 // State changes (for items with states)
 ItemStack withState = stack.withState("activated");

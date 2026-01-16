@@ -11,12 +11,12 @@ The Hytale asset system provides a powerful way to register, load, and manage cu
 ## Architecture
 
 ```
-AssetRegistry (Global)
+AssetRegistry (com.hypixel.hytale.assetstore.AssetRegistry)
 ├── AssetStore<K, T, M>[]     - Type-specific stores
 │   ├── AssetCodec            - Serialization
 │   ├── AssetMap              - Storage/lookup
 │   └── AssetPack[]           - Content packs
-└── TagSystem                  - Asset tagging
+└── Tag indices               - TAG_MAP / CLIENT_TAG_MAP (string → int)
 ```
 
 ## Asset Stores
@@ -24,14 +24,13 @@ AssetRegistry (Global)
 ### Registering an Asset Store
 
 ```java
-import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.codec.AssetCodec;
 import com.hypixel.hytale.assetstore.map.IndexedLookupTableAssetMap;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
 
 @Override
 protected void setup() {
-    AssetRegistry.register(
+    getAssetRegistry().register(
         HytaleAssetStore.builder(MyAsset.class, new IndexedLookupTableAssetMap<>(MyAsset[]::new))
             .setPath("MyAssets")
             .setCodec((AssetCodec) MyAsset.CODEC)
