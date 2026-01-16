@@ -143,7 +143,7 @@ protected void sendUpdate(@Nullable UICommandBuilder commandBuilder,
 
 ```java
 public class SettingsPage extends InteractiveCustomUIPage<SettingsEventData> {
-    
+
     public SettingsPage(PlayerRef playerRef) {
         super(playerRef, CustomPageLifetime.CanDismiss, SettingsEventData.CODEC);
     }
@@ -152,12 +152,12 @@ public class SettingsPage extends InteractiveCustomUIPage<SettingsEventData> {
     public void build(Ref<EntityStore> ref, UICommandBuilder commands,
                       UIEventBuilder events, Store<EntityStore> store) {
         commands.append("Pages/SettingsPage.ui");
-        
-        // Bind save button
+
+        // Bind save button (note: keys must start with uppercase)
         events.addEventBinding(
             CustomUIEventBindingType.Activating,
             "#SaveButton",
-            EventData.of("action", "save")
+            EventData.of("Action", "save")
         );
     }
 
@@ -178,12 +178,12 @@ Create a data class with codec for receiving events:
 
 ```java
 public static class SettingsEventData {
-    public static final BuilderCodec<SettingsEventData> CODEC = 
+    public static final BuilderCodec<SettingsEventData> CODEC =
         BuilderCodec.builder(SettingsEventData.class, SettingsEventData::new)
-            .append(new KeyedCodec<>("action", Codec.STRING),
+            .append(new KeyedCodec<>("Action", Codec.STRING),
                 (d, v) -> d.action = v, d -> d.action)
             .add()
-            .append(new KeyedCodec<>("@value", Codec.INTEGER),
+            .append(new KeyedCodec<>("@Value", Codec.INTEGER),
                 (d, v) -> d.value = v, d -> d.value)
             .add()
             .build();
@@ -195,23 +195,25 @@ public static class SettingsEventData {
 
 ### Event Data Keys
 
-- **Static keys** (e.g., `"action"`) - Sent as literal values
-- **Reference keys** (prefixed with `@`, e.g., `"@value"`) - Reference UI element values at event time
+**Important:** `KeyedCodec` requires all keys to start with an uppercase letter (or `@` for reference keys).
+
+- **Static keys** (e.g., `"Action"`) - Sent as literal values, must start with uppercase
+- **Reference keys** (prefixed with `@`, e.g., `"@Value"`) - Reference UI element values at event time
 
 ### EventData Methods
 
 `EventData` only supports `String` and `Enum` values. Numbers must be converted to strings:
 
 ```java
-// Static factory method
-EventData.of("key", "value")
+// Static factory method - keys must start with uppercase
+EventData.of("Action", "save")
 
 // Append methods (returns self for chaining)
-.append("stringKey", "stringValue")
-.append("enumKey", MyEnum.VALUE)
+.append("ItemId", "sword_01")
+.append("State", MyEnum.VALUE)
 
 // For integers, convert to string
-EventData.of("action", "buy").append("index", Integer.toString(i))
+EventData.of("Action", "buy").append("Index", Integer.toString(i))
 ```
 
 ## UIEventBuilder
@@ -222,11 +224,11 @@ The `UIEventBuilder` creates event bindings for UI elements:
 // Basic event binding
 events.addEventBinding(CustomUIEventBindingType.Activating, "#Button");
 
-// With event data
-events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("action", "click"));
+// With event data (keys must start with uppercase)
+events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("Action", "click"));
 
 // With locksInterface parameter (default is true)
-events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("action", "click"), false);
+events.addEventBinding(CustomUIEventBindingType.Activating, "#Button", EventData.of("Action", "click"), false);
 ```
 
 ### CustomUIEventBindingType
@@ -316,17 +318,18 @@ public class ShopPage extends InteractiveCustomUIPage<ShopPage.ShopEventData> {
             commands.set("#Item" + i + ".Name", item.getName());
             commands.set("#Item" + i + ".Price", item.getPrice() + "c");
 
+            // Note: KeyedCodec keys must start with uppercase
             events.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#BuyBtn" + i,
-                EventData.of("action", "buy").append("index", Integer.toString(i))
+                EventData.of("Action", "buy").append("Index", Integer.toString(i))
             );
         }
 
         events.addEventBinding(
             CustomUIEventBindingType.Activating,
             "#CloseBtn",
-            EventData.of("action", "close")
+            EventData.of("Action", "close")
         );
     }
 
@@ -339,7 +342,7 @@ public class ShopPage extends InteractiveCustomUIPage<ShopPage.ShopEventData> {
                 if (playerCoins >= item.getPrice()) {
                     playerCoins -= item.getPrice();
                     // Give item to player...
-                    
+
                     // Update UI
                     UICommandBuilder update = new UICommandBuilder();
                     update.set("#CoinsLabel.Text", playerCoins + " coins");
@@ -353,11 +356,11 @@ public class ShopPage extends InteractiveCustomUIPage<ShopPage.ShopEventData> {
     }
 
     public static class ShopEventData {
-        public static final BuilderCodec<ShopEventData> CODEC = 
+        public static final BuilderCodec<ShopEventData> CODEC =
             BuilderCodec.builder(ShopEventData.class, ShopEventData::new)
-                .append(new KeyedCodec<>("action", Codec.STRING),
+                .append(new KeyedCodec<>("Action", Codec.STRING),
                     (d, v) -> d.action = v, d -> d.action).add()
-                .append(new KeyedCodec<>("index", Codec.INTEGER),
+                .append(new KeyedCodec<>("Index", Codec.INTEGER),
                     (d, v) -> d.index = v, d -> d.index).add()
                 .build();
 
@@ -408,6 +411,98 @@ The page automatically:
 - Clears `#ElementList`
 - Adds buttons for each `ChoiceElement` with `Activating` event bindings
 - Handles element selection and runs associated `ChoiceInteraction`s
+
+## Creating Custom .ui Files
+
+For fully custom page layouts with images and custom styling, create `.ui` files in your plugin's asset pack.
+
+### Directory Structure
+
+```
+src/main/resources/
+├── manifest.json                              # Set "IncludesAssetPack": true
+└── Common/
+    └── UI/
+        └── Custom/
+            ├── MyStatusPage.ui                # Your custom .ui file
+            └── MyBackground.png               # Images
+```
+
+### Example Custom Page (.ui file)
+
+Create `src/main/resources/Common/UI/Custom/MyStatusPage.ui`:
+
+```
+// Include Common.ui to access built-in styles
+$Common = "Common.ui";
+
+// Define texture (path relative to this .ui file)
+@MyTex = PatchStyle(TexturePath: "MyBackground.png");
+
+Group {
+    LayoutMode: Center;
+
+    Group #MyPanel {
+        Background: @MyTex;
+        Anchor: (Width: 400, Height: 300);
+        LayoutMode: Top;
+
+        // Dynamic text (set from Java)
+        Label #WelcomeText {
+            Style: $Common.@DefaultLabelStyle;
+            Anchor: (Bottom: 8);
+        }
+
+        Label #StatusText {
+            Style: (FontSize: 12, TextColor: #cccccc, Wrap: true, HorizontalAlignment: Center);
+        }
+    }
+}
+```
+
+### Java Page Class
+
+```java
+public class MyStatusPage extends InteractiveCustomUIPage<MyStatusPage.EventData> {
+
+    // Reference your .ui file from Custom/ directory
+    private static final String PAGE_LAYOUT = "Custom/MyStatusPage.ui";
+
+    public MyStatusPage(PlayerRef playerRef) {
+        super(playerRef, CustomPageLifetime.CanDismiss, EventData.CODEC);
+    }
+
+    @Override
+    public void build(Ref<EntityStore> ref, UICommandBuilder commands,
+                      UIEventBuilder events, Store<EntityStore> store) {
+        // Load the custom .ui page
+        commands.append(PAGE_LAYOUT);
+
+        // Set dynamic text content using element IDs from the .ui file
+        commands.set("#WelcomeText.Text", "Welcome, " + playerRef.getUsername() + "!");
+        commands.set("#StatusText.Text", "Your current status information here.");
+    }
+
+    @Override
+    public void handleDataEvent(Ref<EntityStore> ref, Store<EntityStore> store, EventData data) {
+        // Handle events or close page
+    }
+
+    public static class EventData {
+        public static final BuilderCodec<EventData> CODEC = BuilderCodec
+            .builder(EventData.class, EventData::new)
+            .build();
+    }
+}
+```
+
+### Key Points for Custom .ui Files
+
+1. **Import Common.ui** - Use `$Common = "Common.ui";` to access built-in styles
+2. **Reference styles** - Use `Style: $Common.@DefaultInputFieldStyle;` for consistent styling
+3. **Texture paths are relative** - Put images in the same folder and reference by filename
+4. **PatchStyle for images** - Define with `@MyTex = PatchStyle(TexturePath: "file.png");` and apply with `Background: @MyTex;`
+5. **Textures auto-stretch** - Images automatically stretch to fit the element size
 
 ## Built-in UI Files
 

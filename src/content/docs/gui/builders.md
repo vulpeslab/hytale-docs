@@ -47,18 +47,20 @@ builder.append("Pages/MyPage.ui");
 // Append to specific container
 builder.append("#container", "Components/Button.ui");
 
-// Append inline UI markup
-builder.appendInline("#container", "<div class=\"item\">Content</div>");
+// Append inline UI markup (uses Hytale's UI markup syntax)
+builder.appendInline("#container", "Label { Text: No items found; Style: (Alignment: Center); }");
 ```
+
+**Important:** Inline UI markup is limited to simple elements like `Label` and `Group`. For complex layouts with images, custom panels, or backgrounds, create a `.ui` file in your plugin's asset pack instead.
 
 ### Inserting Content
 
 ```java
-// Insert before an element
+// Insert before an element (recommended for complex UI)
 builder.insertBefore("#target-element", "Components/Header.ui");
 
-// Insert inline before an element
-builder.insertBeforeInline("#target-element", "<div>Inserted Content</div>");
+// Insert inline before an element (limited to simple elements)
+builder.insertBeforeInline("#target-element", "Label { Text: Header; Style: (FontSize: 18); }");
 ```
 
 ### Removing and Clearing
@@ -390,6 +392,91 @@ The `CustomPageLifetime` enum controls how the page can be closed:
 | `CanDismiss` | Page can be dismissed (e.g., pressing Escape) |
 | `CanDismissOrCloseThroughInteraction` | Page can be dismissed or closed through in-game interaction |
 
+## UI Markup Syntax
+
+Hytale uses a custom markup syntax for `.ui` files and inline UI. This is NOT HTML - it uses a curly-brace format:
+
+### Basic Syntax
+
+```
+ElementType {
+    PropertyName: value;
+    PropertyName2: (NestedKey: value; NestedKey2: value);
+}
+```
+
+### Supported Inline Elements
+
+Inline UI markup (`appendInline`, `insertBeforeInline`) is limited to simple elements:
+
+| Element | Description | Example |
+|---------|-------------|---------|
+| `Label` | Text display | `Label { Text: Hello; Style: (Alignment: Center); }` |
+| `Group` | Container | `Group { LayoutMode: Left; Anchor: (Bottom: 0); }` |
+
+### Example Inline Markup
+
+```java
+// Simple label
+builder.appendInline("#container", "Label { Text: No items found; Style: (Alignment: Center); }");
+
+// Group container
+builder.appendInline("#list", "Group { LayoutMode: Left; Anchor: (Bottom: 0); }");
+
+// Localized text (use % prefix for translation keys)
+builder.appendInline("#messages", "Label { Text: %customUI.noItems; Style: (Alignment: Center); }");
+```
+
+### Custom .ui Files
+
+For complex UI elements (panels, images, buttons), create `.ui` files in your plugin's asset pack:
+
+1. Set `"IncludesAssetPack": true` in your plugin's `manifest.json`
+2. Create `.ui` files in `src/main/resources/Common/UI/Custom/`
+3. Reference them using `append()` or `insertBefore()`
+
+**Directory structure:**
+```
+src/main/resources/
+├── manifest.json                          # IncludesAssetPack: true
+└── Common/
+    └── UI/
+        └── Custom/
+            ├── MyCustomPanel.ui           # Your .ui files
+            └── MyBackground.png           # Textures
+```
+
+**Loading textures:** Texture paths in `.ui` files are **relative to the .ui file location**. Use `PatchStyle()` to define textures and apply them as backgrounds:
+
+```
+// Include Common.ui to access built-in styles
+$Common = "Common.ui";
+
+// Define a texture variable (path relative to this .ui file)
+@MyTex = PatchStyle(TexturePath: "MyBackground.png");
+
+Group {
+    LayoutMode: Center;
+
+    Group #MyPanel {
+        Background: @MyTex;
+        Anchor: (Width: 800, Height: 1000);
+        LayoutMode: Top;
+    }
+}
+```
+
+**Important notes:**
+- Place textures in the **same folder** as your `.ui` file for simplest relative paths
+- The texture will automatically stretch to fit the element size
+- Import `Common.ui` using `$Common = "Common.ui";` to access built-in styles
+- Reference styles with `Style: $Common.@DefaultInputFieldStyle;`
+
+```java
+// Reference the custom .ui file from Java
+builder.append("Custom/MyCustomPanel.ui");
+```
+
 ## Best Practices
 
 1. **Batch updates** - Combine multiple `set()` calls in one builder
@@ -397,3 +484,7 @@ The `CustomPageLifetime` enum controls how the page can be closed:
 3. **Reference styles** from Common.ui for consistency
 4. **Clear before append** when replacing dynamic content
 5. **Handle event data validation** - clients can send malformed data
+6. **Use .ui files for complex layouts** - Inline markup is limited to simple elements
+7. **Include asset pack for images** - Set `IncludesAssetPack: true` in manifest.json
+8. **Place textures with .ui files** - Put image files in the same directory as your .ui files for easy relative paths
+9. **Use PatchStyle for textures** - Define textures with `@MyTex = PatchStyle(TexturePath: "file.png");` and apply with `Background: @MyTex;`

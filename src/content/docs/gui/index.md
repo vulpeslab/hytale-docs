@@ -147,15 +147,35 @@ hudManager.hideHudComponents(playerRef,
 Hytale uses `.ui` files as the client-side layout format. These text-based assets define UI structure, styles, and components:
 
 ```
-UI Assets
-├── Common.ui                   # Global styles
+Server UI Assets (built-in)
+├── Common.ui                   # Global styles and variables
 ├── Common/
 │   └── TextButton.ui          # Reusable components
 └── Pages/
     ├── DialogPage.ui          # NPC dialogs
     ├── ShopPage.ui            # Shop interfaces
     └── RespawnPage.ui         # Death/respawn screen
+
+Plugin Asset Pack Structure (your plugin)
+src/main/resources/
+├── manifest.json              # Set "IncludesAssetPack": true
+└── Common/
+    └── UI/
+        └── Custom/
+            ├── MyPage.ui          # Custom .ui files
+            └── MyBackground.png   # Textures
 ```
+
+### Creating Custom .ui Files
+
+To create custom UI layouts with images in your plugin:
+
+1. Set `"IncludesAssetPack": true` in `manifest.json`
+2. Place `.ui` files in `src/main/resources/Common/UI/Custom/`
+3. Reference them in Java as `Custom/MyPage.ui`
+4. Use `PatchStyle(TexturePath: "image.png")` for loading textures (paths are relative to the .ui file)
+
+See [Custom Pages](./pages/#creating-custom-ui-files) and [UI Building Tools](./builders/#custom-ui-files) for detailed examples.
 
 ## Package References
 
