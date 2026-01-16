@@ -4,6 +4,7 @@ title: Assets & Registry
 description: Register custom content and manage assets in your Hytale plugin.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 The Hytale asset system provides a powerful way to register, load, and manage custom game content.

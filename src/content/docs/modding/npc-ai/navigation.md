@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Navigation & Pathfinding
 description: A* pathfinding and movement systems for NPCs
+human-verified: false
 ---
 
 The navigation system provides pathfinding and movement capabilities for NPCs using A* pathfinding algorithms and steering behaviors.

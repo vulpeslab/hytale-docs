@@ -4,6 +4,7 @@ title: Cave Generation
 description: Understanding and customizing Hytale's cave generation system for server mods.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 Hytale's cave generation system creates complex underground networks using a node-based approach with various shapes, prefabs, and procedural logic. Caves are composed of connected nodes that can be chambers, tunnels, or prefab-based structures.

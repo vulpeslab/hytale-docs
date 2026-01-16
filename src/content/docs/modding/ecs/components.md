@@ -4,6 +4,7 @@ title: Component System
 description: Learn about Hytale's component system and how to create custom components.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 Hytale uses an Entity-Component-System architecture for game objects. This provides efficient data access and flexible composition.

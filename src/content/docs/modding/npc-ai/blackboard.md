@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Blackboard System
 description: Shared memory system for NPC AI decision-making
+human-verified: false
 ---
 
 The Blackboard system provides a shared memory architecture for NPCs to store and access information about their environment, events, and interactions. It acts as a central knowledge base that sensors can query to make decisions.

@@ -4,6 +4,7 @@ title: Prefab System
 description: Create, load, save, and place prefab structures in Hytale.
 sidebar:
   order: 4
+human-verified: false
 ---
 
 The Prefab System allows you to create, save, and place pre-built structures containing blocks, fluids, entities, and nested child prefabs with rotation support.

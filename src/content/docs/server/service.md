@@ -4,6 +4,7 @@ title: Running as a Service
 description: Set up your Hytale server as a system service for automatic startup.
 sidebar:
   order: 6
+human-verified: false
 ---
 
 Run your Hytale server as a system service for automatic startup, crash recovery, and easier management.

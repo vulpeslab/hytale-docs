@@ -4,6 +4,7 @@ title: Server Configuration
 description: Configure your Hytale server settings, worlds, authentication, and performance options.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 This section covers all aspects of configuring your Hytale dedicated server.

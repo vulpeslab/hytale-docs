@@ -4,6 +4,7 @@ title: Translation System
 description: Learn how to add translations to your Hytale plugins.
 sidebar:
     order: 7
+human-verified: false
 ---
 
 ## File Structure

@@ -4,6 +4,7 @@ title: Zone System
 description: Understanding and customizing Hytale's zone system for server mods.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 Hytale's zone system divides the world into large-scale regions, each with its own biomes, caves, unique structures, and discovery mechanics. Zones provide the top-level organization for world generation.

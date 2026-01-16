@@ -4,6 +4,7 @@ title: Permissions and Access Control
 description: Implement permission-based access control in your Hytale server plugins.
 sidebar:
   order: 5
+human-verified: false
 ---
 
 The Hytale permission system provides fine-grained access control for server features, commands, and custom functionality. It supports user-level permissions, group-based inheritance, and wildcard matching.

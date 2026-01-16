@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Flock System
 description: Group behavior management for NPCs including flock membership and coordination
+human-verified: false
 ---
 
 The Flock System manages group behaviors for NPCs, allowing them to move and act together as coordinated units. Flocks provide emergent group behaviors like alignment, cohesion, and separation.

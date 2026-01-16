@@ -5,6 +5,7 @@ description: Networking and protocol documentation for Hytale plugin development
 slug: modding/networking
 sidebar:
   order: 4
+human-verified: false
 ---
 
 This section covers Hytale's networking layer and packet handling system.

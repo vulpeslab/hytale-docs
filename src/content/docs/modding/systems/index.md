@@ -4,6 +4,7 @@ title: Gameplay Systems
 description: Core gameplay systems including damage, movement, interactions, projectiles, and entity effects.
 sidebar:
   order: 5
+human-verified: false
 ---
 
 This section covers Hytale's gameplay systems—the game mechanics that operate on entities using the ECS architecture.

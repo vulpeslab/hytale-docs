@@ -4,6 +4,7 @@ title: Content & World
 description: Learn about creating custom content, assets, and world generation for Hytale.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 This section covers content creation and world building features in Hytale, including assets, items, prefabs, and world generation.

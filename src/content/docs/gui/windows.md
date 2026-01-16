@@ -4,6 +4,7 @@ title: Windows System
 description: Create and manage server-side GUI windows for player interactions in Hytale.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 The Hytale window system provides a server-authoritative GUI framework for displaying inventory interfaces, crafting tables, containers, and custom interfaces to players.

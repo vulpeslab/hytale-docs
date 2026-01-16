@@ -4,6 +4,7 @@ title: Entity System (ECS)
 description: Learn about Hytale's Entity-Component-System architecture for game objects.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 This section covers Hytale's Entity-Component-System (ECS) architecture, which provides efficient data access and flexible composition for game objects.

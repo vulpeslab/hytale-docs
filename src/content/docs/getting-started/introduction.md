@@ -4,6 +4,7 @@ title: Introduction
 description: Get started with running and configuring your own Hytale server.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 :::caution[Early Access & Work in Progress]

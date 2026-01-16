@@ -4,6 +4,7 @@ title: GUI System
 description: An overview of Hytale's three GUI subsystems - Windows, Pages, and HUD.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 Hytale's server-side GUI system is composed of three distinct subsystems, each designed for different use cases. All three are managed per-player and accessed through the `Player` component.

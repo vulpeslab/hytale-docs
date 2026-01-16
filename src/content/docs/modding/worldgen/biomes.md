@@ -4,6 +4,7 @@ title: Biome System
 description: Understanding and customizing Hytale's biome generation system for server mods.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 Hytale's biome system controls terrain characteristics, block placement, vegetation, and environmental properties across different regions of the world. This system uses pattern generation and interpolation to create smooth biome transitions.

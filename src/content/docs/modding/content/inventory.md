@@ -4,6 +4,7 @@ title: Inventory and Items System
 description: Manage player inventories, item stacks, and create custom items in your Hytale plugins.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 The Hytale inventory system provides comprehensive APIs for managing player inventories, item containers, and item manipulation.

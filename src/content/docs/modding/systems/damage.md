@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Damage System
 description: Understanding the damage system in Hytale, including damage causes, damage data, knockback, and hit detection
+human-verified: false
 ---
 
 The damage system in Hytale handles all aspects of entity damage, from damage calculation to knockback and visual effects. The system is built on the Entity Component System (ECS) architecture and uses events for damage processing.

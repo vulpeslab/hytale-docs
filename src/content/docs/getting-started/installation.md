@@ -4,6 +4,7 @@ title: Installation
 description: Install Java and set up your Hytale server files.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 This guide walks you through installing all prerequisites and setting up your Hytale dedicated server.

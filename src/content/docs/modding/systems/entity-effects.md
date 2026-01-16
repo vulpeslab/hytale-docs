@@ -4,6 +4,7 @@ title: Entity Effects
 description: Status effects, buffs, debuffs, and temporary entity modifiers.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 The Entity Effects system manages temporary and permanent status effects applied to entities, including buffs, debuffs, damage over time, and stat modifiers.

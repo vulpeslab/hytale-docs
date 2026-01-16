@@ -4,6 +4,7 @@ title: HUD System
 description: Managing and customizing the player heads-up display (HUD) in Hytale servers.
 sidebar:
   order: 4
+human-verified: false
 ---
 
 The Hytale HUD system provides comprehensive control over the player's heads-up display, including built-in components, custom overlays, notifications, and event titles.

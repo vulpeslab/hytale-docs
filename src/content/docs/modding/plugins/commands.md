@@ -4,6 +4,7 @@ title: Command System
 description: Create custom server commands for your Hytale plugin.
 sidebar:
   order: 4
+human-verified: false
 ---
 
 Create custom server commands for your plugin. The command system provides a flexible API for defining commands with required and optional arguments, subcommands, permissions, and more.

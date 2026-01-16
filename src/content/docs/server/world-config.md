@@ -4,6 +4,7 @@ title: World Configuration
 description: Configure individual world settings in Hytale.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 Each world has its own `config.json` file in `universe/worlds/<worldname>/`.

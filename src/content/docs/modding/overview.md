@@ -4,6 +4,7 @@ title: Modding Overview
 description: Unofficial community guide to creating mods and plugins for Hytale servers.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 This documentation provides a comprehensive guide to creating mods and plugins for the Hytale dedicated server.

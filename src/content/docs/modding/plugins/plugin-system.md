@@ -4,6 +4,7 @@ title: Plugin System
 description: Learn how to create and structure plugins for the Hytale server.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 The Hytale server uses a powerful plugin system that allows you to extend server functionality.

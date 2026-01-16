@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Roles
 description: High-level NPC behavior definitions and configuration
+human-verified: false
 ---
 
 Roles define the complete behavior set for an NPC, including their instructions, stats, movement parameters, inventory, and all behavioral characteristics.

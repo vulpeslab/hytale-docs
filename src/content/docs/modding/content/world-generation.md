@@ -4,6 +4,7 @@ title: World Generation
 description: Understanding and customizing Hytale's procedural world generation system.
 sidebar:
   order: 5
+human-verified: false
 ---
 
 Hytale features a sophisticated procedural world generation system for terrain, biomes, caves, and structures.

@@ -4,6 +4,7 @@ title: Task Scheduling and Async System
 description: Schedule and manage asynchronous tasks in your Hytale plugins.
 sidebar:
   order: 6
+human-verified: false
 ---
 
 The Hytale server provides several mechanisms for scheduling tasks, handling asynchronous operations, and managing work across different execution contexts.

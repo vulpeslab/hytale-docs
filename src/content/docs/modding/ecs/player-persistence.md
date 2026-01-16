@@ -4,6 +4,7 @@ title: Player Management & Persistence
 description: Manage players, store custom data, and handle player events in your Hytale plugins.
 sidebar:
   order: 5
+human-verified: false
 ---
 
 This guide covers the Hytale player management and persistence systems, including how to look up players, store custom player data, and handle player events.

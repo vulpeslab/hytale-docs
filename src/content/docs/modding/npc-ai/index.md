@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: NPC & AI System
 description: Overview of Hytale's NPC and AI systems for creating intelligent entities
+human-verified: false
 ---
 
 The NPC & AI system in Hytale provides a comprehensive framework for creating intelligent non-player characters with complex behaviors, decision-making capabilities, and interactions. The system is built on several interconnected components that work together to create believable AI behaviors.

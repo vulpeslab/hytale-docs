@@ -4,6 +4,7 @@ title: Performance Tuning
 description: Optimize your Hytale server performance with memory and JVM settings.
 sidebar:
   order: 5
+human-verified: false
 ---
 
 Optimize your Hytale server for better performance with proper memory allocation and JVM tuning.

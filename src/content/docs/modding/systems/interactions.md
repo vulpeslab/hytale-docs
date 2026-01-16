@@ -4,6 +4,7 @@ title: Interaction System
 description: Player and entity interactions with blocks, entities, and items including cooldowns and interaction chains.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 The Interaction System manages how players and entities interact with the game world through mouse clicks, block interactions, and entity interactions.

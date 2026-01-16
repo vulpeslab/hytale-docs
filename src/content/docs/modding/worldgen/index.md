@@ -4,6 +4,7 @@ title: World Generation Systems
 description: Learn about Hytale's advanced world generation systems for zones, biomes, and caves.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 This section covers Hytale's procedural world generation systems that create diverse, engaging environments through zones, biomes, and cave networks.

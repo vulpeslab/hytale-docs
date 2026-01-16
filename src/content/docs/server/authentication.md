@@ -4,6 +4,7 @@ title: Authentication
 description: Configure server authentication modes for Hytale.
 sidebar:
   order: 4
+human-verified: false
 ---
 
 Hytale supports multiple authentication modes to accommodate different server use cases.

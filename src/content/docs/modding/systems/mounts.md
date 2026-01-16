@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Mounts System
 description: Understanding the mounts system in Hytale, including block mounts, NPC mounts, mount controllers, and minecarts
+human-verified: false
 ---
 
 The mounts system in Hytale allows entities to ride other entities or mount blocks. The system handles seats, beds, minecarts, and rideable NPCs with configurable mount points and controllers.

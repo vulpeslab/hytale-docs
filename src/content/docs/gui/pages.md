@@ -4,6 +4,7 @@ title: Custom Pages System
 description: Create and manage custom GUI pages for player interactions in your Hytale server plugins.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 The Custom Pages System allows you to create fully customizable GUI interfaces for players. This includes interactive dialogs, settings pages, choice menus, shop interfaces, and more.

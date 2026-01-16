@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Spawning System
 description: NPC spawning, spawn beacons, markers, and spawn control
+human-verified: false
 ---
 
 The Spawning System controls how and when NPCs spawn in the world through spawn beacons, spawn markers, spawn controllers, and spawning rules.

@@ -4,6 +4,7 @@ title: Event System
 description: Subscribe to and create custom events in your Hytale plugins.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 The Hytale event system provides a powerful way to react to game occurrences and enable inter-plugin communication.

@@ -4,6 +4,7 @@ title: UI Building Tools
 description: Use UICommandBuilder and UIEventBuilder to create dynamic UIs in Hytale.
 sidebar:
   order: 5
+human-verified: false
 ---
 
 The UI building tools provide a fluent API for constructing and updating user interfaces from server-side code.

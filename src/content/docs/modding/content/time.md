@@ -4,6 +4,7 @@ title: Time System
 description: World game time, day/night cycle mapping, moon phases, and time packets.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 > **Scope note:** This page only describes behavior that is visible in the decompiled server code.

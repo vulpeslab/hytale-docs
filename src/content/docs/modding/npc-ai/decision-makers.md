@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Decision Makers
 description: State evaluation and condition-based AI logic
+human-verified: false
 ---
 
 The Decision Maker system provides condition evaluation and state-based logic for NPCs. It allows NPCs to make intelligent decisions based on their current state and environment.

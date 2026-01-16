@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Movement & Locomotion System
 description: Understanding the movement states and locomotion system in Hytale, including walking, sprinting, crouching, sliding, mantling, and gliding
+human-verified: false
 ---
 
 The movement and locomotion system in Hytale manages all entity movement states and behaviors. The system tracks various movement states that affect animations, physics, and gameplay mechanics.

@@ -4,6 +4,7 @@ title: Entity Stats System
 description: Learn about Hytale's Entity Stats System for managing Health, Stamina, Mana, and custom character attributes.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 Hytale's Entity Stats System provides a flexible framework for managing entity attributes like Health, Stamina, Mana, and Oxygen. The system supports dynamic modifiers, conditional regeneration, and custom stat types.

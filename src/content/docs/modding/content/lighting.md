@@ -4,6 +4,7 @@ title: Lighting System
 description: Chunk lighting manager thread, light storage, propagation rules, and invalidation.
 sidebar:
   order: 3
+human-verified: false
 ---
 
 > **Scope note:** This page only describes behavior that is visible in the decompiled server code.

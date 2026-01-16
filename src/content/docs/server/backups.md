@@ -4,6 +4,7 @@ title: Backup Configuration
 description: Configure automatic backups for your Hytale server.
 sidebar:
   order: 7
+human-verified: false
 ---
 
 Protect your server data with automatic backups.

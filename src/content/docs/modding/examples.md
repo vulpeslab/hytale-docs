@@ -4,6 +4,7 @@ title: Examples & Patterns
 description: Code examples and common patterns for Hytale plugin development.
 sidebar:
   order: 8
+human-verified: false
 ---
 
 This page provides complete code examples and common patterns for Hytale plugin development.

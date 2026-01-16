@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Animations
 description: NPC animation state management
+human-verified: false
 ---
 
 The animation system manages NPC animation states and transitions, allowing NPCs to display appropriate animations based on their current behavior and state.

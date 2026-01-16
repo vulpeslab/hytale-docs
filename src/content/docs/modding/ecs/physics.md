@@ -4,6 +4,7 @@ title: Physics System
 description: Learn about Hytale's physics simulation system for entities and projectiles.
 sidebar:
   order: 4
+human-verified: false
 ---
 
 Hytale uses a sophisticated physics system for simulating entity movement, projectile trajectories, and physical interactions. The physics system supports multiple numerical integrators, force accumulation, and collision detection.

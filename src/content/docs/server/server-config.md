@@ -4,6 +4,7 @@ title: Server Settings
 description: Configure main server settings in config.json.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 The main `config.json` file controls server-wide settings. This configuration is managed by the `HytaleServerConfig` class (`com.hypixel.hytale.server.core.HytaleServerConfig`).

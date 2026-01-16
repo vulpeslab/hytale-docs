@@ -2,6 +2,7 @@
 author: UnlimitedBytes
 title: Instructions
 description: Behavioral building blocks for NPC AI including sensors, actions, and motions
+human-verified: false
 ---
 
 Instructions are the core behavioral building blocks of the NPC AI system. They combine sensors (conditions), actions (behaviors), and motions (movement) to create complete NPC behaviors.

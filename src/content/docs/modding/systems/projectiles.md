@@ -4,6 +4,7 @@ title: Projectile System
 description: Projectile spawning, physics simulation, trajectory calculation, and collision detection.
 sidebar:
   order: 2
+human-verified: false
 ---
 
 The Projectile System handles spawning and simulating projectiles like arrows, spells, and thrown items with configurable physics.

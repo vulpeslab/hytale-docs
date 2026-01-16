@@ -4,6 +4,7 @@ title: Protocol & Packets
 description: Understanding Hytale's networking protocol and packet handling.
 sidebar:
   order: 1
+human-verified: false
 ---
 
 The Hytale server uses a Netty-based networking layer supporting QUIC (UDP) and TCP transports.
