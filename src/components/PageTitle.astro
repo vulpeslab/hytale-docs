@@ -1,0 +1,77 @@
+---
+const route = Astro.locals.starlightRoute;
+const entry = route?.entry;
+const PAGE_TITLE_ID = '_top';
+const title = entry?.data?.title ?? route?.siteTitle ?? '';
+const isVerified = entry?.data?.['human-verified'] ?? false;
+---
+
+<h1 id={PAGE_TITLE_ID} class="page-title">
+	<span class="title-text">{title}</span>
+	{entry && (
+		<span
+			class="verification-badge"
+			title={isVerified ? 'Human Verified' : 'AI Generated / Not Verified'}
+			aria-hidden="true"
+		>
+			{isVerified ? '✅' : '❌'}
+		</span>
+	)}
+</h1>
+
+{entry && (
+	<span class="sr-only">
+		This page is {isVerified ? 'human verified' : 'not human verified'}.
+	</span>
+)}
+
+<style>
+	:host {
+		display: block;
+	}
+
+	.page-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.title-text {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.verification-badge {
+		font-size: 1.5rem;
+		line-height: 1;
+		cursor: help;
+	}
+
+	@layer starlight.core {
+		.page-title {
+			margin-top: 1rem;
+			margin-bottom: 1.5rem;
+			font-size: var(--sl-text-h1);
+			line-height: var(--sl-line-height-headings);
+			font-weight: 600;
+			color: var(--sl-color-white);
+		}
+	}
+
+	@media (max-width: 50rem) {
+		.verification-badge {
+			font-size: 1.25rem;
+		}
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		border: 0;
+	}
+</style>

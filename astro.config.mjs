@@ -10,6 +10,10 @@ export default defineConfig({
 			description: 'Unofficial community documentation for running and modding Hytale servers',
 			defaultLocale: 'en',
 			customCss: ['./src/styles/custom.css'],
+			components: {
+				PageTitle: './src/components/PageTitle.astro',
+				Sidebar: './src/components/Sidebar.astro',
+			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/vulpeslab/hytale-docs' },
 				{ icon: 'discord', label: 'Discord', href: 'https://discord.gg/jshWA2kRmF' },

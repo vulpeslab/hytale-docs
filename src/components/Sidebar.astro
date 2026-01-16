@@ -1,0 +1,101 @@
+---
+// @ts-ignore - provided by Starlight at runtime
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
+// @ts-ignore - provided by Starlight at runtime
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+// @ts-ignore - provided by Starlight at runtime
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
+import { getCollection } from 'astro:content';
+
+const route = Astro.locals.starlightRoute;
+const sidebarEntries = Array.isArray(route?.sidebar) ? route.sidebar : [];
+const docs = await getCollection('docs');
+const verificationMap = buildVerificationMap(docs);
+const sidebarWithIcons = addIconsToSidebar(sidebarEntries);
+
+function buildVerificationMap(entries: any[] = []) {
+	const map = new Map<string, boolean>();
+	for (const entry of entries) {
+		const verified = entry?.data?.['human-verified'] ?? false;
+		for (const key of normalizeKeys(entry?.id, entry?.slug)) {
+			map.set(key, verified);
+		}
+	}
+	return map;
+}
+
+function normalizeKeys(...values: Array<string | undefined>) {
+	const keys = new Set<string>();
+	for (const value of values) {
+		if (!value) continue;
+		let key = value.trim();
+		if (!key) continue;
+		if (key.startsWith('/')) key = key.slice(1);
+		if (key.endsWith('/')) key = key.slice(0, -1);
+		if (!key) key = 'index';
+		keys.add(key);
+		if (key.endsWith('/index')) {
+			const trimmed = key.slice(0, -6) || 'index';
+			keys.add(trimmed);
+		}
+	}
+	return keys;
+}
+
+function addIconsToSidebar(sidebar: any[]): any[] {
+	return sidebar.map((item) => {
+		if (item?.type === 'link') {
+			const status = getVerificationStatus(item.href);
+			if (typeof status === 'boolean') {
+				const icon = status ? '✅' : '❌';
+				return { ...item, label: `${item.label} ${icon}` };
+			}
+		}
+		if (item?.type === 'group') {
+			return { ...item, entries: addIconsToSidebar(item.entries ?? []) };
+		}
+		return item;
+	});
+}
+
+function getVerificationStatus(href?: string) {
+	const candidates = getSlugCandidates(href);
+	for (const candidate of candidates) {
+		if (verificationMap.has(candidate)) {
+			return verificationMap.get(candidate);
+		}
+	}
+	return undefined;
+}
+
+function getSlugCandidates(href?: string) {
+	if (!href) return [];
+	let path = href;
+	try {
+		const url = new URL(href, 'http://localhost');
+		path = url.pathname;
+	} catch {
+		// Relative paths remain unchanged.
+	}
+	const baseUrl = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
+	if (baseUrl && path.startsWith(baseUrl)) {
+		path = path.slice(baseUrl.length);
+	}
+	if (path.startsWith('/')) path = path.slice(1);
+	const localePrefix = route?.locale ? `${route.locale}/` : '';
+	if (localePrefix && path.startsWith(localePrefix)) {
+		path = path.slice(localePrefix.length);
+	}
+	const cleaned = path.replace(/[?#].*$/, '').replace(/\/$/, '') || 'index';
+	return Array.from(normalizeKeys(cleaned));
+}
+
+---
+
+<SidebarPersister>
+	<SidebarSublist sublist={sidebarWithIcons} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+	<MobileMenuFooter />
+</div>
