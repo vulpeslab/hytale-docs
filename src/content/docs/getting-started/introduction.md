@@ -1,80 +1,76 @@
 ---
 author: UnlimitedBytes
 title: Introduction
-description: Get started with running and configuring your own Hytale server.
+description: Welcome to the Unofficial Hytale Server Documentation.
 sidebar:
   order: 1
-human-verified: false
+human-verified: true
 ---
 
-:::caution[Early Access & Work in Progress]
-**Hytale is currently in early access.** This documentation is unofficial and created through community decompilation and analysis.
+Welcome to the **Unofficial Hytale Server Documentation**. This project is a community-driven initiative to provide technical documentation for Hytale's server architecture, configuration, and modding capabilities.
 
-- Content is under heavy construction and may be incomplete or change frequently
-- Some details may become outdated as Hytale updates
-- Found an error or want to contribute? [Report it on GitHub](https://github.com/vulpeslab/hytale-docs/issues)
+:::caution[Early Access & Unofficial Content]
+**This site is not affiliated with Hytale or Hypixel Studios.**
+
+Hytale is currently in development. These documents are created through community analysis, reverse engineering, and decompilation of early server binaries.
+- **WIP Content**: Information is under heavy construction and may be incomplete.
+- **Subject to Change**: Details may become outdated as Hytale updates.
+- **Community Driven**: [Report errors or contribute on GitHub](https://github.com/vulpeslab/hytale-docs/issues).
 :::
 
-Welcome to the Hytale Server documentation! This guide will help you get started with running your own Hytale dedicated server.
+## Document Status Symbols
+
+To help you navigate the reliability of this community-driven documentation, each page features a status badge next to the title and in the sidebar:
+
+- ✅ **Human Verified**: This page has been manually reviewed, tested, and updated for accuracy by a human contributor.
+- ❌ **Not Verified**: This page contains information generated via AI analysis or raw decompiler output. It has **not** been thoroughly reviewed by a human and may contain inaccuracies. Usage of this docs are at your own risk.
+
+---
 
 ## What is a Hytale Server?
 
-A Hytale dedicated server allows you to host multiplayer games for yourself and others. With your own server, you can:
+The Hytale Server is a standalone Java (`.jar`) application. While the Hytale client uses this same server internally to power single-player worlds, the dedicated server allows you to host multiplayer games independently of the game client.
 
-- Host private games for friends and communities
-- Customize game rules and world settings
-- Configure multiple worlds with different game modes
-- Integrate with server mesh architecture for scalable deployments
-- Implement custom server-side modifications
+To run a dedicated server, you need:
+- **HytaleServer.jar**: The executable server application.
+- **Assets.zip**: The game assets provided by Hypixel Studios, containing the world data, models, and scripts required for the server to function.
+
+With your own server, you can:
+- Host private games for friends and communities.
+- Customize game rules, world settings, and gameplay mechanics.
+- Configure multiple worlds within a single "Universe".
+- Implement custom server-side modifications and plugins.
+- Leverage Hytale's native multiserver architecture for scalable deployments.
 
 ## System Requirements
 
-Before setting up your server, ensure your system meets these requirements:
+The Hytale server is designed to be efficient but its resource usage scales with player activity and world complexity.
 
-- **Memory**: At least 4GB of RAM (8GB+ recommended for larger servers)
-- **Java**: Java 25 or higher (Adoptium/Temurin recommended)
-- **Architecture**: x64 or arm64 supported
-- **Network**: UDP port access (default port 5520) - uses QUIC protocol
-- **Storage**: Sufficient disk space for world data, backups, and assets
+- **Memory**: At least 4GB of RAM is required. (8GB+ recommended for production or high view distances).
+- **Java**: **Java 25** or higher is required. We recommend [Adoptium Temurin](https://adoptium.net/temurin/releases).
+- **Architecture**: Full support for both **x64** and **arm64**.
+- **Network**: UDP port access (default **5520**). Hytale uses the **QUIC protocol** over UDP.
+- **Storage**: Sufficient space for the `Assets.zip`, world data (`universe/`), and logs.
 
 ## Quick Start
 
-1. **Install Java 25** - Download from [Adoptium](https://adoptium.net/)
-2. **Get Server Files** - Copy the Server folder and assets from your Hytale installation
-3. **Launch the Server** - Run with the command:
+1. **Install Java 25**: Download and install the latest Java 25 LTS from [Adoptium](https://adoptium.net/).
+2. **Obtain Server Files**: 
+   - **Manual**: Copy the `HytaleServer.jar` (found inside the `Server` folder) and `Assets.zip` from your Hytale launcher installation (typically found in the `package/game/latest` directory).
+   - **Downloader**: Use the [Hytale Downloader CLI](https://downloader.hytale.com/hytale-downloader.zip) for production environments to keep files updated via OAuth2.
+3. **Launch the Server**: Run the server using the following command:
 
 ```bash
-java -Xms4G -Xmx4G -jar HytaleServer.jar --assets ../HytaleAssets
+java -Xms4G -Xmx4G -jar HytaleServer.jar --assets Assets.zip
 ```
 
-The `--assets` flag accepts either a directory path or a `.zip` archive containing your game assets.
+4. **Authenticate**: On first launch, you must authorize your server. In the server console, use one of the following commands:
+   - `auth login device`: Generates a code for `https://accounts.hytale.com/device`.
+   - `auth login browser`: Opens your browser to authorize.
 
-4. **Connect** - Join your server at `localhost:5520` (or your server's IP address)
+   **Note**: By default, login sessions are stored in memory and lost on restart. To persist your authentication, run:
+   ```
+   auth persistence Encrypted
+   ```
 
-## Documentation Structure
-
-This documentation covers everything you need to run a Hytale server:
-
-### Getting Started
-Step-by-step guides to install Java, set up your server, and configure basic settings.
-
-### Server Configuration
-Detailed information about server.json, world configuration, and command-line arguments.
-
-### Server Administration
-Learn about server commands, permissions, authentication, and player management.
-
-### Advanced Topics
-Server mesh architecture, backup systems, and performance optimization.
-
-## Network Protocol
-
-Hytale servers use the **QUIC protocol over UDP**, not TCP. When configuring firewalls and port forwarding, make sure to:
-
-- Open UDP port 5520 (or your custom port)
-- Configure your firewall to allow UDP traffic
-- Set up port forwarding for UDP if behind NAT
-
-## Next Steps
-
-Ready to set up your server? Head to the [Installation](/getting-started/installation/) guide to install all prerequisites.
+5. **Connect**: Once authenticated, join your server at `localhost:5520` (or your server's IP).

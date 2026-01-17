@@ -1,5 +1,6 @@
 /* Custom Hytale theme styles */
 :root {
+	--sl-content-width: 60rem;
 	--sl-color-accent-low: #3d2800;
 	--sl-color-accent: #ff9900;
 	--sl-color-accent-high: #ffc966;
@@ -57,14 +58,14 @@ a:hover:not(.sl-link-button) {
 	color: #ffffff;
 }
 
-:root[data-theme='light'] .sl-link-button:not(.primary):hover {
-	color: #17181c;
+
+/* Wide layout tweaks */
+.main-frame {
+	max-width: none;
 }
 
-/* Doc pages only - fix massive whitespace on the left of articles */
-[data-has-sidebar] .content-panel > .sl-container {
-	margin-inline-start: 0;
-	margin-inline-end: auto;
+.content-panel > .sl-container {
+	margin-inline: auto;
 }
 
 /* Card styling */

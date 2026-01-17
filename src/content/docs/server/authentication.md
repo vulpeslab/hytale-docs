@@ -98,6 +98,30 @@ If your Hytale account has multiple game profiles, you'll be prompted to select 
 /auth select <number>
 ```
 
+## Authentication Persistence
+
+By default, the Hytale server stores authentication sessions in **Memory**. This means that every time the server restarts, you will need to re-authenticate using the commands above.
+
+To persist your authentication across restarts, you can configure the persistence mode:
+
+### Encrypted Persistence (Recommended)
+
+To store your authentication securely on disk:
+
+```
+auth persistence Encrypted
+```
+
+This will save an encrypted session file in the server directory, allowing the server to automatically log in upon restart.
+
+### Persistence Options
+
+| Mode | Description |
+| ---- | ----------- |
+| `Memory` | (Default) Session is lost on server shutdown. |
+| `Encrypted` | Session is encrypted and stored locally. |
+| `Plaintext` | Session is stored unencrypted (not recommended). |
+
 Where `<number>` corresponds to the profile listed after login.
 
 ### Additional Auth Commands

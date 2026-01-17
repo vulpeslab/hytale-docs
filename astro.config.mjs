@@ -29,7 +29,7 @@ export default defineConfig({
 				{
 					label: 'Server Configuration',
 					items: [
-						{ label: 'Overview', slug: 'server' },
+						{ label: 'Command-Line Options', slug: 'server/command-line-options' },
 						{ label: 'Server Settings', slug: 'server/server-config' },
 						{ label: 'World Configuration', slug: 'server/world-config' },
 						{ label: 'Authentication', slug: 'server/authentication' },
