@@ -1,12 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightLlmsTxt from 'starlight-llms-txt'
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://hytale-docs.pages.dev/',
 	integrations: [
 		starlight({
 			title: 'Hytale Server Docs (Unofficial)',
+			plugins: [starlightLlmsTxt()],
 			description: 'Unofficial community documentation for running and modding Hytale servers',
 			defaultLocale: 'en',
 			customCss: ['./src/styles/custom.css'],
