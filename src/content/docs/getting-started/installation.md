@@ -14,10 +14,9 @@ Hytale servers require Java 25 or higher. We recommend using Adoptium (Temurin).
 
 ### Windows
 
-1. Download the JDK installer from [Adoptium](https://adoptium.net/)
-2. Select **Temurin 25** and **Windows x64**
-3. Run the installer and follow the prompts
-4. Ensure "Add to PATH" is selected during installation
+```bash
+winget install --id EclipseAdoptium.Temurin.25.JRE
+```
 
 ### macOS
 
