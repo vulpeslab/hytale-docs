@@ -27,7 +27,12 @@ The main `config.json` file controls server-wide settings. This configuration is
     "InitialTimeout": "PT10S",
     "AuthTimeout": "PT30S",
     "PlayTimeout": "PT1M",
-    "JoinTimeouts": {}
+    "JoinTimeouts": {
+        "HandshakeTimeout": "",
+        "LoginTimeout": "",
+        "InitialConnectionTimeout": "",
+        "KeepAliveTimeout": ""
+    }
   },
   "RateLimit": {
     "Enabled": true,
@@ -103,6 +108,14 @@ Connection timeouts are handled by the `ConnectionTimeouts` nested class and use
 | `AuthTimeout` | Duration | `PT30S` | Authentication timeout (constant: `DEFAULT_AUTH_TIMEOUT`) |
 | `PlayTimeout` | Duration | `PT1M` | Play session timeout (constant: `DEFAULT_PLAY_TIMEOUT`) |
 | `JoinTimeouts` | Map\<String, Duration\> | `{}` | Custom per-context join timeouts |
+
+#### Join Timeouts
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `HandshakeTimeout` | Duration |  | Handshake timeout |
+| `LoginTimeout` | Duration |  | Login timeout |
+| `InitialConnectionTimeout` | Duration |  | Initial connection timeout |
+| `KeepAliveTimeout` | Duration |  | Keep alive timeout |
 
 ### Rate Limiting
 
